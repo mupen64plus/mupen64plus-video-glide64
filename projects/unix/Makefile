@@ -206,6 +206,7 @@ SOURCE = \
 	$(SRCDIR)/3dmath.cpp \
 	$(SRCDIR)/CRC.cpp \
 	$(SRCDIR)/Combine.cpp \
+	$(SRCDIR)/Config.cpp \
 	$(SRCDIR)/Debugger.cpp \
 	$(SRCDIR)/DepthBufferRender.cpp \
 	$(SRCDIR)/Ini.cpp \

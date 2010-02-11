@@ -45,6 +45,7 @@
 #include "Combine.h"
 #include "Util.h"
 #include "Ini.h"
+#include "Config.h"
 #include "Tmem.h"
 #include "TexCache.h"
 #include "TexCache.h"
@@ -399,12 +400,11 @@ void microcheck ()
     INI_FindSection ("UCODE");
     FRDP("ucode = %s\n", str);
     int uc = INI_ReadInt (str, -2, 0);
-    
+    printf("ucode = %d\n", uc);
     if (uc == -2 && ucode_error_report)
     {
-        INI_FindSection ("SETTINGS");
-        settings.ucode = INI_ReadInt ("ucode", 0);
-        INI_Close ();
+        Config_Open();
+        settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
         sprintf (out_buf, "Error: uCode crc not found in INI, using currently selected uCode\n\n%08lx", (unsigned long)uc_crc);
@@ -418,9 +418,8 @@ void microcheck ()
     }
     else if (uc == -1 && ucode_error_report)
     {
-        INI_FindSection ("SETTINGS");
-        settings.ucode = INI_ReadInt ("ucode", 0);
-        INI_Close ();
+        Config_Open();
+        settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
         sprintf (out_buf, "Error: Unsupported uCode!\n\ncrc: %08lx", (unsigned long)uc_crc);
@@ -437,9 +436,6 @@ void microcheck ()
         old_ucode = settings.ucode;
         settings.ucode = uc;
         FRDP("microcheck: old ucode: %d,  new ucode: %d\n", old_ucode, uc);
-        INI_FindSection ("SETTINGS");
-        INI_WriteInt ("ucode", uc);
-        INI_Close ();
     }
 }
 

@@ -69,8 +69,8 @@ BOOL INI_Open ()
     {
         strncpy(path, configdir, PATH_MAX);
         // make sure there's a trailing '/'
-        if(path[strlen(path)-1] != '/')
-            strncat(path, "/", PATH_MAX - strlen(path));
+        //if(path[strlen(path)-1] != '/')
+        //    strncat(path, "/", PATH_MAX - strlen(path));
     }
     else
     {
@@ -134,7 +134,7 @@ BOOL INI_Open ()
 #endif // _WIN32
     }
    
-    strncat (path, "Glide64.ini", PATH_MAX - strlen(path));
+    //strncat (path, "Glide64.ini", PATH_MAX - strlen(path));
     printf("opening %s\n", path);
     // Open the file
     ini = fopen (path, "r+b");

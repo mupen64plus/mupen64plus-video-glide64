@@ -1,5 +1,6 @@
 /*
 * Glide64 - Glide video plugin for Nintendo 64 emulators.
+* Copyright (c) 2010  Jon Ring
 * Copyright (c) 2002  Dave2001
 *
 * This program is free software; you can redistribute it and/or modify
@@ -21,7 +22,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define GTK2_SUPPORT 1
+#include "winlnxdefs.h"
+
+BOOL Config_Open();
+void Config_ReadScreenSettings(int *width, int *height, int *fullscreen);
+int Config_ReadInt(const char *itemname, int def_value, BOOL create=TRUE);
+
 
 #endif /* CONFIG_H */
 

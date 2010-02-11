@@ -41,6 +41,7 @@
 #include "Combine.h"
 
 #include "Ini.h"
+#include "Config.h"
 
 #include "TexCache.h"
 #include "CRC.h"
@@ -297,68 +298,71 @@ void ChangeSize ()
 void ReadSettings ()
 {
   //  LOG("ReadSettings\n");
-  INI_Open ();
-  INI_FindSection ("SETTINGS");
-  settings.card_id = (BYTE)INI_ReadInt ("card_id", 0);
+  if (!Config_Open())
+  {
+    LOG("Could not open configuration!");
+    return;
+  }
+  settings.card_id = (BYTE)Config_ReadInt ("card_id", 0);
   
-  settings.depth_bias = -INI_ReadInt ("depth_bias", 0);
-  settings.res_data = (DWORD) INI_ReadInt ("resolution", 7);
+  settings.depth_bias = -Config_ReadInt ("depth_bias", 0);
+  //TODO: use general settings resolution
+  settings.res_data = (DWORD) Config_ReadInt ("resolution", 7);
   if (settings.res_data >= 24) settings.res_data = 12;
   settings.scr_res_x = settings.res_x = resolutions[settings.res_data][0];
   settings.scr_res_y = settings.res_y = resolutions[settings.res_data][1];
-  settings.autodetect_ucode = (BOOL)INI_ReadInt ("autodetect_ucode", 1);
-  settings.ucode = (DWORD)INI_ReadInt ("ucode", 2);
+  settings.autodetect_ucode = (BOOL)Config_ReadInt ("autodetect_ucode", 1);
+  settings.ucode = (DWORD)Config_ReadInt ("ucode", 2);
   
-  settings.wireframe = (BOOL)INI_ReadInt ("wireframe", 0);
-  settings.wfmode = (int)INI_ReadInt ("wfmode", 1);
-  settings.filtering = (BYTE)INI_ReadInt ("filtering", 1);
-  settings.fog = (BOOL)INI_ReadInt ("fog", 1);
-  settings.buff_clear = (BOOL)INI_ReadInt ("buff_clear", 1);
-  settings.vsync = (BOOL)INI_ReadInt ("vsync", 0);
-  settings.fast_crc = (BOOL)INI_ReadInt ("fast_crc", 0);
-  settings.swapmode = (BYTE)INI_ReadInt ("swapmode", 1);
-  settings.lodmode = (BYTE)INI_ReadInt ("lodmode", 0);
+  settings.wireframe = (BOOL)Config_ReadInt ("wireframe", 0);
+  settings.wfmode = (int)Config_ReadInt ("wfmode", 1);
+  settings.filtering = (BYTE)Config_ReadInt ("filtering", 1);
+  settings.fog = (BOOL)Config_ReadInt ("fog", 1);
+  settings.buff_clear = (BOOL)Config_ReadInt ("buff_clear", 1);
+  settings.vsync = (BOOL)Config_ReadInt ("vsync", 0);
+  settings.fast_crc = (BOOL)Config_ReadInt ("fast_crc", 0);
+  settings.swapmode = (BYTE)Config_ReadInt ("swapmode", 1);
+  settings.lodmode = (BYTE)Config_ReadInt ("lodmode", 0);
   
-  settings.logging = (BOOL)INI_ReadInt ("logging", 0);
-  settings.log_clear = (BOOL)INI_ReadInt ("log_clear", 0);
-  settings.elogging = (BOOL)INI_ReadInt ("elogging", 0);
-  settings.filter_cache = (BOOL)INI_ReadInt ("filter_cache", 0);
-  settings.cpu_write_hack = (BOOL)INI_ReadInt ("detect_cpu_write", 0);
-  settings.unk_as_red = (BOOL)INI_ReadInt ("unk_as_red", 0);
-  settings.log_unk = (BOOL)INI_ReadInt ("log_unk", 0);
-  settings.unk_clear = (BOOL)INI_ReadInt ("unk_clear", 0);
+  settings.logging = (BOOL)Config_ReadInt ("logging", 0);
+  settings.log_clear = (BOOL)Config_ReadInt ("log_clear", 0);
+  settings.elogging = (BOOL)Config_ReadInt ("elogging", 0);
+  settings.filter_cache = (BOOL)Config_ReadInt ("filter_cache", 0);
+  settings.cpu_write_hack = (BOOL)Config_ReadInt ("detect_cpu_write", 0);
+  settings.unk_as_red = (BOOL)Config_ReadInt ("unk_as_red", 0);
+  settings.log_unk = (BOOL)Config_ReadInt ("log_unk", 0);
+  settings.unk_clear = (BOOL)Config_ReadInt ("unk_clear", 0);
   
-  settings.wrap_big_tex = (BOOL)INI_ReadInt ("wrap_big_tex", 0);
-  settings.flame_corona = (BOOL)INI_ReadInt ("flame_corona", 0);
+  settings.wrap_big_tex = (BOOL)Config_ReadInt ("wrap_big_tex", 0);
+  settings.flame_corona = (BOOL)Config_ReadInt ("flame_corona", 0);
   //  settings.RE2_native_video = (BOOL)INI_ReadInt ("RE2_native_video", 0);
   
-  settings.show_fps = (BYTE)INI_ReadInt ("show_fps", 9);
+  settings.show_fps = (BYTE)Config_ReadInt ("show_fps", 9);
   
-  settings.clock = (BOOL)INI_ReadInt ("clock", 0);
-  settings.clock_24_hr = (BOOL)INI_ReadInt ("clock_24_hr", 0);
+  settings.clock = (BOOL)Config_ReadInt ("clock", 0);
+  settings.clock_24_hr = (BOOL)Config_ReadInt ("clock_24_hr", 0);
   
-  settings.fb_read_always = (BOOL)INI_ReadInt ("fb_read_always", 0);
-  settings.fb_read_alpha = (BOOL)INI_ReadInt ("fb_read_alpha", 0);
-  settings.fb_smart = (BOOL)INI_ReadInt ("fb_smart", 0);
-  settings.fb_motionblur = (BOOL)INI_ReadInt ("motionblur", 0);
-  settings.fb_hires = (BOOL)INI_ReadInt ("fb_hires", 1);
-  settings.fb_get_info = (BOOL)INI_ReadInt ("fb_get_info", 0);
-  settings.fb_depth_clear = (BOOL)INI_ReadInt ("fb_clear", 0);
-  settings.fb_depth_render = (BOOL)INI_ReadInt ("fb_render", 0);
+  settings.fb_read_always = (BOOL)Config_ReadInt ("fb_read_always", 0);
+  settings.fb_read_alpha = (BOOL)Config_ReadInt ("fb_read_alpha", 0);
+  settings.fb_smart = (BOOL)Config_ReadInt ("fb_smart", 0);
+  settings.fb_motionblur = (BOOL)Config_ReadInt ("motionblur", 0);
+  settings.fb_hires = (BOOL)Config_ReadInt ("fb_hires", 1);
+  settings.fb_get_info = (BOOL)Config_ReadInt ("fb_get_info", 0);
+  settings.fb_depth_clear = (BOOL)Config_ReadInt ("fb_clear", 0);
+  settings.fb_depth_render = (BOOL)Config_ReadInt ("fb_render", 0);
   if (settings.fb_depth_render)
     settings.fb_depth_clear = TRUE;
   
-  settings.custom_ini = (BOOL)INI_ReadInt ("custom_ini", 1);
-  settings.hotkeys = (BOOL)INI_ReadInt ("hotkeys", 1);
+  settings.custom_ini = (BOOL)Config_ReadInt ("custom_ini", 1);
+  settings.hotkeys = (BOOL)Config_ReadInt ("hotkeys", 1);
 
-  settings.full_res = (BOOL)INI_ReadInt ("full_res", 7);
-  settings.tex_filter = (BOOL)INI_ReadInt ("tex_filter", 0);
-  settings.noditheredalpha = (BOOL)INI_ReadInt ("noditheredalpha", 1);
-  settings.noglsl = (BOOL)INI_ReadInt ("noglsl", 1);
-  settings.FBO = (BOOL)INI_ReadInt ("fbo", 0);
-  settings.disable_auxbuf = (BOOL)INI_ReadInt ("disable_auxbuf", 0);
-  
-  INI_Close ();
+  settings.full_res = (BOOL)Config_ReadInt ("full_res", 7);
+  settings.tex_filter = (BOOL)Config_ReadInt ("tex_filter", 0);
+  settings.noditheredalpha = (BOOL)Config_ReadInt ("noditheredalpha", 1);
+  settings.noglsl = (BOOL)Config_ReadInt ("noglsl", 1);
+  settings.FBO = (BOOL)Config_ReadInt ("fbo", 0);
+  settings.disable_auxbuf = (BOOL)Config_ReadInt ("disable_auxbuf", 0);
+
 }
 
 void ReadSpecialSettings (const char name[21])
@@ -433,14 +437,14 @@ void ReadSpecialSettings (const char name[21])
     settings.KI = TRUE;
   else if (strstr(name, (const char *)"LEGORacers"))
     settings.lego = TRUE;
-  /*
+
   INI_Open ();
   if (INI_FindSection (name,FALSE) == FALSE)
   {
     INI_Close ();
     return;
   }
-  */
+
   int offset_x = INI_ReadInt ("offset_x", -1, 0);
   int offset_y = INI_ReadInt ("offset_y", -1, 0);
   int scale_x = INI_ReadInt ("scale_x", -1, 0);
@@ -535,69 +539,6 @@ void ReadSpecialSettings (const char name[21])
   }
   if (settings.fb_depth_render)
     settings.fb_depth_clear = TRUE;
-  INI_Close ();
-}
-
-//
-// WriteRegistry - writes the settings in the registry
-//
-
-void WriteSettings ()
-{
-  INI_Open ();
-  INI_FindSection ("SETTINGS");
-  INI_WriteInt ("card_id", settings.card_id);
-  INI_WriteInt ("resolution", settings.res_data);
-  INI_WriteInt ("autodetect_ucode", settings.autodetect_ucode);
-  INI_WriteInt ("ucode", settings.ucode);
-  
-  INI_WriteInt ("wireframe", settings.wireframe);
-  INI_WriteInt ("wfmode", settings.wfmode);
-  INI_WriteInt ("filtering", settings.filtering);
-  INI_WriteInt ("fog", settings.fog);
-  INI_WriteInt ("buff_clear", settings.buff_clear);
-  INI_WriteInt ("vsync", settings.vsync);
-  INI_WriteInt ("fast_crc", settings.fast_crc);
-  INI_WriteInt ("swapmode", settings.swapmode);
-  INI_WriteInt ("lodmode", settings.lodmode);
-  
-  INI_WriteInt ("logging", settings.logging);
-  INI_WriteInt ("log_clear", settings.log_clear);
-  INI_WriteInt ("elogging", settings.elogging);
-  INI_WriteInt ("filter_cache", settings.filter_cache);
-  INI_WriteInt ("detect_cpu_write", settings.cpu_write_hack);
-  INI_WriteInt ("unk_as_red", settings.unk_as_red);
-  INI_WriteInt ("log_unk", settings.log_unk);
-  INI_WriteInt ("unk_clear", settings.unk_clear);
-  
-  INI_WriteInt ("wrap_big_tex", settings.wrap_big_tex);
-  INI_WriteInt ("flame_corona", settings.flame_corona);
-  //  INI_WriteInt ("RE2_native_video", settings.RE2_native_video);
-  
-  
-  INI_WriteInt ("show_fps", settings.show_fps);
-  
-  INI_WriteInt ("clock", settings.clock);
-  INI_WriteInt ("clock_24_hr", settings.clock_24_hr);
-  
-  INI_WriteInt ("fb_read_always", settings.fb_read_always);
-  INI_WriteInt ("fb_read_alpha", settings.fb_read_alpha);
-  INI_WriteInt ("fb_smart", settings.fb_smart);
-  INI_WriteInt ("motionblur", settings.fb_motionblur);
-  INI_WriteInt ("fb_hires", settings.fb_hires);
-  INI_WriteInt ("fb_get_info", settings.fb_get_info);
-  INI_WriteInt ("fb_clear", settings.fb_depth_clear);
-  INI_WriteInt ("fb_render", settings.fb_depth_render);
-  
-  INI_WriteInt ("custom_ini", settings.custom_ini);
-  INI_WriteInt ("hotkeys", settings.hotkeys);
-
-  INI_WriteInt ("full_res", settings.full_res);
-  INI_WriteInt ("tex_filter", settings.tex_filter);
-  INI_WriteInt ("noditheredalpha", settings.noditheredalpha);
-  INI_WriteInt ("noglsl", settings.noglsl);
-  INI_WriteInt ("fbo", settings.FBO);
-  
   INI_Close ();
 }
 
@@ -1030,7 +971,7 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
         return M64ERR_INCOMPATIBLE;
     }
 
-    SetConfigDir(ConfigGetUserDataPath());
+    SetConfigDir(ConfigGetSharedDataFilepath("Glide64.ini"));
 
     CoreVideo_Init();
     return M64ERR_SUCCESS;
