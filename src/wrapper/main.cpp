@@ -326,81 +326,16 @@ grSstWinOpen(
   
     LOG("grSstWinOpen(%d, %d, %d, %d, %d, %d %d)\r\n", hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
 
-    switch ((screen_resolution & ~0x80)&0xFF)
-    {
-    case GR_RESOLUTION_320x200:
-        width = 320;
-        height = 200;
-        break;
-    case GR_RESOLUTION_320x240:
-        width = 320;
-        height = 240;
-        break;
-    case GR_RESOLUTION_400x256:
-        width = 400;
-        height = 256;
-        break;
-    case GR_RESOLUTION_512x384:
-        width = 512;
-        height = 384;
-        break;
-    case GR_RESOLUTION_640x200:
-        width = 640;
-        height = 200;
-        break;
-    case GR_RESOLUTION_640x350:
-        width = 640;
-        height = 350;
-        break;
-    case GR_RESOLUTION_640x400:
-        width = 640;
-        height = 400;
-        break;
-    case GR_RESOLUTION_640x480:
-        width = 640;
-        height = 480;
-        break;
-    case GR_RESOLUTION_800x600:
-        width = 800;
-        height = 600;
-        break;
-    case GR_RESOLUTION_960x720:
-        width = 960;
-        height = 720;
-        break;
-    case GR_RESOLUTION_856x480:
-        width = 856;
-        height = 480;
-        break;
-    case GR_RESOLUTION_512x256:
-        width = 512;
-        height = 256;
-        break;
-    case GR_RESOLUTION_1024x768:
-        width = 1024;
-        height = 768;
-        break;
-    case GR_RESOLUTION_1280x1024:
-        width = 1280;
-        height = 1024;
-        break;
-    case GR_RESOLUTION_1600x1200:
-        width = 1600;
-        height = 1200;
-        break;
-    case GR_RESOLUTION_400x300:
-        width = 400;
-        height = 300;
-        break;
-    default:
-        width = 640;
-        height = 480;
-        display_warning("unknown SstWinOpen resolution : %x", screen_resolution);
-    }
+    PackedScreenResolution packedResolution;
+    packedResolution.resolution = screen_resolution;
+    width = packedResolution.width;
+    height = packedResolution.height;
 
-    m64p_video_mode screen_mode = M64VIDEO_WINDOWED;
-    if (!(screen_resolution & 0x80))
+    m64p_video_mode screen_mode;
+    if (packedResolution.fullscreen)
         screen_mode = M64VIDEO_FULLSCREEN;
+    else
+        screen_mode = M64VIDEO_WINDOWED;
 
     if (CoreVideo_GL_SetAttribute(M64P_GL_DOUBLEBUFFER, 1) != M64ERR_SUCCESS ||
         CoreVideo_GL_SetAttribute(M64P_GL_BUFFER_SIZE, 16) != M64ERR_SUCCESS ||
@@ -416,80 +351,8 @@ grSstWinOpen(
         return 0;
     }
 
-    CoreVideo_SetCaption("Glide64!");
+    CoreVideo_SetCaption("Glide64");
     fullscreen = 0;
-#if 0
-    //TODO: remove
-
-   // init sdl & gl
-   const SDL_VideoInfo *videoInfo;
-   Uint32 videoFlags = 0;
-   
-   
-   /* Initialize SDL */
-   printf("(II) Initializing SDL video subsystem...\n");
-   if(SDL_InitSubSystem(SDL_INIT_VIDEO) == -1)
-   {
-     printf("(EE) Error initializing SDL video subsystem: %s\n", SDL_GetError());
-     return false;
-   }
-   
-   /* Video Info */
-   printf("(II) Getting video info...\n");
-   if(!(videoInfo = SDL_GetVideoInfo()))
-   {
-     printf("(EE) Video query failed: %s\n", SDL_GetError());
-     SDL_QuitSubSystem(SDL_INIT_VIDEO);
-     return false;
-   }
-   
-   /* Setting the video mode */
-   videoFlags |= SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_HWPALETTE;
-   
-   if(videoInfo->hw_available)
-     videoFlags |= SDL_HWSURFACE;
-   else
-     videoFlags |= SDL_SWSURFACE;
-   
-   if(videoInfo->blit_hw)
-     videoFlags |= SDL_HWACCEL;
-   
-    if(screen_resolution & 0x80)
-      ;
-    else
-    {
-        viewport_offset = 0;
-        videoFlags |= SDL_FULLSCREEN;
-    }
-    viewport_offset = ((screen_resolution>>2) > 20) ? screen_resolution >> 2 : 20;
-
-
-  // ZIGGY not sure, but it might be better to let the system choose
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 16);
-//   SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-//   SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-//   SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-//   SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-//   SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-   
-   printf("(II) Setting video mode %dx%d...\n", width, height);
-   if(!(m_pScreen = SDL_SetVideoMode(width, height, 0, videoFlags)))
-     {
-    printf("(EE) Error setting videomode %dx%d: %s\n", width, height, SDL_GetError());
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
-    return false;
-     }
-   
-   char caption[500];
-# ifdef _DEBUG
-   sprintf(caption, "Glide64 Debug");
-# else // _DEBUG
-   sprintf(caption, "Glide64");
-# endif // _DEBUG
-   SDL_WM_SetCaption(caption, caption);
-#endif
 
    // ZIGGY viewport_offset is WIN32 specific, with SDL just set it to zero
     viewport_offset = 0; //-10 //-20;
@@ -1625,8 +1488,6 @@ grBufferSwap( FxU32 swap_interval )
     return;
   }
   CoreVideo_GL_SwapBuffers();
-  //TODO: remove
-  //SDL_GL_SwapBuffers();
   for (i = 0; i < nb_fb; i++)
     fbs[i].buff_clear = 1;
 

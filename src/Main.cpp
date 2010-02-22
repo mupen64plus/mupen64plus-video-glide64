@@ -306,11 +306,10 @@ void ReadSettings ()
   settings.card_id = (BYTE)Config_ReadInt ("card_id", 0);
   
   settings.depth_bias = -Config_ReadInt ("depth_bias", 0);
-  //TODO: use general settings resolution
-  settings.res_data = (DWORD) Config_ReadInt ("resolution", 7);
-  if (settings.res_data >= 24) settings.res_data = 12;
-  settings.scr_res_x = settings.res_x = resolutions[settings.res_data][0];
-  settings.scr_res_y = settings.res_y = resolutions[settings.res_data][1];
+  PackedScreenResolution packedResolution = Config_ReadScreenSettings();
+  settings.res_data = (DWORD) packedResolution.resolution;
+  settings.scr_res_x = settings.res_x = packedResolution.width;
+  settings.scr_res_y = settings.res_y = packedResolution.height;
   settings.autodetect_ucode = (BOOL)Config_ReadInt ("autodetect_ucode", 1);
   settings.ucode = (DWORD)Config_ReadInt ("ucode", 2);
   
@@ -517,7 +516,7 @@ void ReadSpecialSettings (const char name[21])
     int read_alpha = INI_ReadInt ("fb_read_alpha", -1, 0);
     int depth_clear = INI_ReadInt ("fb_clear", -1, 0);
     //FIXME unused int depth_render = INI_ReadInt ("fb_render", -1, 0);
-    int resolution = (INT)INI_ReadInt ("resolution", -1, 0);
+    //int resolution = (INT)INI_ReadInt ("resolution", -1, 0);
     int cpu_write_hack = (INT)INI_ReadInt ("detect_cpu_write", -1, 0);
     
     if (filtering != -1) settings.filtering = filtering;
@@ -529,6 +528,7 @@ void ReadSpecialSettings (const char name[21])
     if (read_alpha != -1) settings.fb_read_alpha= read_alpha;
     if (depth_clear != -1) settings.fb_depth_clear = depth_clear;
     if (cpu_write_hack != -1) settings.cpu_write_hack = cpu_write_hack;
+    /*
     if (resolution != -1)
     {
       settings.res_data = (DWORD) resolution;
@@ -536,6 +536,7 @@ void ReadSpecialSettings (const char name[21])
       settings.scr_res_x = settings.res_x = resolutions[settings.res_data][0];
       settings.scr_res_y = settings.res_y = resolutions[settings.res_data][1];
     }
+    */
   }
   if (settings.fb_depth_render)
     settings.fb_depth_clear = TRUE;
@@ -712,7 +713,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
     GRWINOPENEXT grSstWinOpenExt = (GRWINOPENEXT)grGetProcAddress("grSstWinOpenExt");
     if (grSstWinOpenExt)
       gfx_context = grSstWinOpenExt ((FxU32)NULL,
-      settings.res_data | ((evoodoo_using_window)?0x80:0x00),
+      settings.res_data,
       GR_REFRESH_60Hz,
       GR_COLORFORMAT_RGBA,
       GR_ORIGIN_UPPER_LEFT,
@@ -722,7 +723,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   }
   if (!gfx_context)
     gfx_context = grSstWinOpen ((FxU32)NULL,
-    settings.res_data | ((evoodoo_using_window)?0x80:0x00),
+    settings.res_data,
     GR_REFRESH_60Hz,
     GR_COLORFORMAT_RGBA,
     GR_ORIGIN_UPPER_LEFT,
@@ -1028,7 +1029,8 @@ output:   none
 EXPORT void CALL ChangeWindow (void)
 {
   LOG ("ChangeWindow()\n");
-
+  //TODO: do this better
+  /*
   if (evoodoo)
   {
     if (!ev_fullscreen)
@@ -1072,6 +1074,7 @@ EXPORT void CALL ChangeWindow (void)
       ReleaseGfx ();
     }
   }
+  */
 }
 
 /******************************************************************

@@ -39,11 +39,15 @@ BOOL Config_Open()
     return TRUE;
 }
 
-void Config_ReadScreenSettings(int *width, int *height, int *fullscreen)
+PackedScreenResolution Config_ReadScreenSettings()
 {
-    *width = ConfigGetParamInt(video_general_section, "ScreenWidth");
-    *height = ConfigGetParamInt(video_general_section, "ScreenHeight");
-    *fullscreen = ConfigGetParamBool(video_general_section, "Fullscreen");
+    PackedScreenResolution packedResolution;
+
+    packedResolution.width = ConfigGetParamInt(video_general_section, "ScreenWidth");
+    packedResolution.height = ConfigGetParamInt(video_general_section, "ScreenHeight");
+    packedResolution.fullscreen = ConfigGetParamBool(video_general_section, "Fullscreen");
+    
+    return packedResolution;
 }
 
 int Config_ReadInt(const char *itemname, int def_value, BOOL create)

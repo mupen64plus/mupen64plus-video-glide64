@@ -9,6 +9,21 @@
 
 #define LOG(...)
 
+//The Glide API originally used an integer to pick an enumerated resolution.
+//To accomodate arbitrary resolutions, pack it into a 32-bit struct
+//so we don't have to change function signatures
+union PackedScreenResolution
+{
+    struct 
+    {
+        int width : 16;
+        int height : 15;
+        int fullscreen : 1;
+    };
+    int resolution;
+};
+
+
 /* definitions of pointers to Core config functions */
 extern ptr_ConfigOpenSection      ConfigOpenSection;
 extern ptr_ConfigSetParameter     ConfigSetParameter;

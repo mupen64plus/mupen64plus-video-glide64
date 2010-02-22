@@ -23,9 +23,10 @@
 #define CONFIG_H
 
 #include "winlnxdefs.h"
+#include "m64p.h"
 
 BOOL Config_Open();
-void Config_ReadScreenSettings(int *width, int *height, int *fullscreen);
+PackedScreenResolution Config_ReadScreenSettings();
 int Config_ReadInt(const char *itemname, int def_value, BOOL create=TRUE);
 
 
