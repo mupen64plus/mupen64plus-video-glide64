@@ -877,51 +877,51 @@ void ReleaseGfx ()
 extern "C" {
 #endif
 
-EXPORT void CALL ReadScreen(void **dest, int *width, int *height)
+EXPORT void CALL ReadScreen2(void *dest, int *width, int *height, int front)
 {
   *width = settings.res_x;
   *height = settings.res_y;
-  BYTE * buff = (BYTE *) malloc(settings.res_x * settings.res_y * 3);
-  BYTE * line = buff;
-  *dest = (void*)buff;
-  
-  if (!fullscreen)
+  if (dest)
   {
-    for (DWORD y=0; y<settings.res_y; y++)
+    BYTE * line = (BYTE*)dest;
+    if (!fullscreen)
     {
-      for (DWORD x=0; x<settings.res_x; x++)
+      for (DWORD y=0; y<settings.res_y; y++)
       {
-        line[x*3] = 0x20;
-        line[x*3+1] = 0x7f;
-        line[x*3+2] = 0x40;
+        for (DWORD x=0; x<settings.res_x; x++)
+        {
+          line[x*3] = 0x20;
+          line[x*3+1] = 0x7f;
+          line[x*3+2] = 0x40;
+        }
       }
-    }
-    printf("[Glide64] Cannot save screenshot in windowed mode!\n");
-    return;
-  }
-  
-  GrLfbInfo_t info;
-  info.size = sizeof(GrLfbInfo_t);
-  if (grLfbLock(GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER, GR_LFBWRITEMODE_888, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info))
-  {
-    // Copy the screen
-    for (DWORD y=0; y<settings.res_y; y++)
-    {
-      BYTE *ptr = (BYTE*) info.lfbPtr + (info.strideInBytes * y);
-      for (DWORD x=0; x<settings.res_x; x++)
-      {
-        line[x*3]   = ptr[2];  // red
-        line[x*3+1] = ptr[1];  // green
-        line[x*3+2] = ptr[0];  // blue
-        ptr += 4;
-      }
-      line += settings.res_x * 3;
+      printf("[Glide64] Cannot save screenshot in windowed mode!\n");
+      return;
     }
     
-    // Unlock the frontbuffer
-    grLfbUnlock (GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER);
+    GrLfbInfo_t info;
+    info.size = sizeof(GrLfbInfo_t);
+    if (grLfbLock(GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER, GR_LFBWRITEMODE_888, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info))
+    {
+      // Copy the screen
+      for (DWORD y=0; y<settings.res_y; y++)
+      {
+        BYTE *ptr = (BYTE*) info.lfbPtr + (info.strideInBytes * y);
+        for (DWORD x=0; x<settings.res_x; x++)
+        {
+          line[x*3]   = ptr[2];  // red
+          line[x*3+1] = ptr[1];  // green
+          line[x*3+2] = ptr[0];  // blue
+          ptr += 4;
+        }
+        line += settings.res_x * 3;
+      }
+      
+      // Unlock the frontbuffer
+      grLfbUnlock (GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER);
+    }
+    LOG ("ReadScreen. Success.\n");
   }
-  LOG ("ReadScreen. Success.\n");
 }
 
 EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Context,
