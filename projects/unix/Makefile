@@ -270,9 +270,13 @@ uninstall:
 	rm -f "$(DESTDIR)$(SHAREDIR)/Glide64.ini"
 
 clean:
-	rm -f ./_obj/*.o  ./_obj/wrapper/*.o $(TARGET)
+	rm -rf ./_obj/* $(TARGET)
 
 rebuild: clean all
+
+# build dependency files
+CFLAGS += -MD
+-include $(OBJECTS:.o=.d)
 
 # build rules
 $(TARGET): $(OBJECTS)
