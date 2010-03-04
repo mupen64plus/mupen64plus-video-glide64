@@ -81,7 +81,7 @@ endif
 
 # base CFLAGS, LIBS, and LDFLAGS
 CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -I../../src -I../../src/wrapper -DGCC
-LDFLAGS += -ldl -lpng
+LDFLAGS += -ldl
 
 # Since we are building a shared library, we must compile with -fPIC for x86_64 CPUs.
 # On 32-bit systems we do not want to use -fPIC because we don't have to and it has a big performance penalty on this arch
