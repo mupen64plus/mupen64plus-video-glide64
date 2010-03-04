@@ -271,6 +271,7 @@ uninstall:
 
 clean:
 	rm -rf ./_obj/* $(TARGET)
+	rmdir ./_obj
 
 rebuild: clean all
 
