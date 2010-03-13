@@ -28,7 +28,6 @@
 #include <string.h>
 
 #include <SDL.h>
-#include <SDL_opengl.h>
 
 #include "glide.h"
 #include "main.h"
@@ -44,6 +43,7 @@ extern void FindBestDepthBias();
 extern int getEnableFBO();
 extern int getDisableAuxbuf();
 
+#ifdef WIN32
 PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
 PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
 PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
@@ -111,7 +111,9 @@ static void InitGLPrototypes()
     INIT_ENTRY_POINT(PFNGLUNIFORM4FARBPROC, glUniform4fARB);
     INIT_ENTRY_POINT(PFNGLUSEPROGRAMOBJECTARBPROC, glUseProgramObjectARB);
 }
-
+#else
+static void InitGLPrototypes() { return; }
+#endif
 
 int screen_width, screen_height;
 

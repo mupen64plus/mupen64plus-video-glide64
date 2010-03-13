@@ -41,7 +41,7 @@
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include "Ini.h"
-#include "gfx1.3.h"
+#include "Gfx1.3.h"
 #include <limits.h>
 #ifndef _WIN32
 #include <unistd.h>

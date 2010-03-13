@@ -27,8 +27,6 @@
 #include <string.h>
 #endif
 
-#include <SDL_opengl.h>
-
 #include "glide.h"
 #include "main.h"
 #include "m64p.h"

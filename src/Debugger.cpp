@@ -41,7 +41,7 @@
 #include "Util.h"
 #include "Debugger.h"
 #include <stdio.h>
-#include "gfx1.3.h"
+#include "Gfx1.3.h"
 #ifndef _WIN32
 #include <stdarg.h>
 #include <string.h>
