@@ -19,7 +19,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.          *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "../winlnxdefs.h"
+#include "../gfx1.3.h"
 
 static __inline int GetResult( DWORD A, DWORD B, DWORD C, DWORD D )
 {

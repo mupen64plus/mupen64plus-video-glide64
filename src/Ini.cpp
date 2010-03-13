@@ -41,14 +41,8 @@
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include "Ini.h"
-
-FILE *ini;
-int sectionstart;
-int last_line;      // last good line
-int last_line_ret;  // last line ended in return?
-WORD cr = 0x0A0D;
-static char configdir[PATH_MAX] = {0};
-
+#include "gfx1.3.h"
+#include <limits.h>
 #ifndef _WIN32
 #include <unistd.h>
 #include <string.h>
@@ -60,6 +54,17 @@ static char configdir[PATH_MAX] = {0};
 #ifndef _WIN32
 #include <sys/resource.h>
 #endif
+
+#ifdef _WIN32
+#define PATH_MAX _MAX_PATH
+#endif
+
+FILE *ini;
+int sectionstart;
+int last_line;      // last good line
+int last_line_ret;  // last line ended in return?
+WORD cr = 0x0A0D;
+static char configdir[PATH_MAX] = {0};
 
 BOOL INI_Open ()
 {

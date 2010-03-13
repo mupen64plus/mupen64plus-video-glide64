@@ -41,13 +41,20 @@
 #include "Util.h"
 #include "Debugger.h"
 #include <stdio.h>
-
+#include "gfx1.3.h"
 #ifndef _WIN32
 #include <stdarg.h>
 #include <string.h>
 #endif // _WIN32
 
 DEBUGGER debug;
+
+const char *FBLa[] = { "G_BL_CLR_IN", "G_BL_CLR_MEM", "G_BL_CLR_BL", "G_BL_CLR_FOG" };
+const char *FBLb[] = { "G_BL_A_IN", "G_BL_A_FOG", "G_BL_A_SHADE", "G_BL_0" };
+const char *FBLc[] = { "G_BL_CLR_IN", "G_BL_CLR_MEM", "G_BL_CLR_BL", "G_BL_CLR_FOG"};
+const char *FBLd[] = { "G_BL_1MA", "G_BL_A_MEM", "G_BL_1", "G_BL_0" };
+const char *str_lod[]    = { "1", "2", "4", "8", "16", "32", "64", "128", "256" };
+const char *str_aspect[] = { "1x8", "1x4", "1x2", "1x1", "2x1", "4x1", "8x1" };
 
 #define SX(x) ((x)*rdp.scale_1024)
 #define SY(x) ((x)*rdp.scale_768)

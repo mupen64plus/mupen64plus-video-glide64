@@ -40,7 +40,11 @@
 #ifndef RDP_H
 #define RDP_H
 
+#ifdef _WIN32
+#include <windows.h>
+#else // _WIN32
 #include "winlnxdefs.h"
+#endif // _WIN32
 #include "glide.h"
 
 //#ifdef GCC
@@ -193,14 +197,12 @@ typedef struct {
   BOOL  clock;
   BOOL  clock_24_hr;
    
-#ifndef _WIN32
   DWORD full_res;
   DWORD tex_filter;
   BOOL noditheredalpha;
   BOOL noglsl;
   BOOL FBO;
   BOOL disable_auxbuf;
-#endif // _WIN32
 
   //Frame buffer emulation options
   BOOL  fb_read_always;

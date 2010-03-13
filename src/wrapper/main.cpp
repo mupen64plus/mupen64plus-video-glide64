@@ -21,12 +21,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <stdint.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
-#define GL_GLEXT_PROTOTYPES
+#include <SDL.h>
 #include <SDL_opengl.h>
 
 #include "glide.h"
@@ -38,6 +39,79 @@
 #ifdef VPDEBUG
 #include <IL/il.h>
 #endif
+
+extern void FindBestDepthBias();
+extern int getEnableFBO();
+extern int getDisableAuxbuf();
+
+PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
+PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
+PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
+PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
+PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB;
+PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+PFNGLFOGCOORDFEXTPROC glFogCoordfEXT;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
+PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
+PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
+PFNGLLINKPROGRAMARBPROC glLinkProgramARB;
+PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2fARB;
+PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
+PFNGLSECONDARYCOLOR3FPROC glSecondaryColor3f;
+PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+PFNGLUNIFORM1FARBPROC glUniform1fARB;
+PFNGLUNIFORM1IARBPROC glUniform1iARB;
+PFNGLUNIFORM4FARBPROC glUniform4fARB;
+PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
+
+static void APIENTRY EmptyFunc(void) { return; }
+
+#define INIT_ENTRY_POINT(type, funcname) \
+  funcname = (type) CoreVideo_GL_GetProcAddress(#funcname); \
+  if (funcname == NULL) { LOG(M64MSG_WARNING, \
+    "Couldn't get address of OpenGL function: '%s'", #funcname); funcname = (type) EmptyFunc; }
+
+static void InitGLPrototypes()
+{
+    INIT_ENTRY_POINT(PFNGLACTIVETEXTUREARBPROC, glActiveTextureARB);
+    INIT_ENTRY_POINT(PFNGLATTACHOBJECTARBPROC, glAttachObjectARB);
+    INIT_ENTRY_POINT(PFNGLBINDFRAMEBUFFEREXTPROC, glBindFramebufferEXT);
+    INIT_ENTRY_POINT(PFNGLBINDRENDERBUFFEREXTPROC, glBindRenderbufferEXT);
+    INIT_ENTRY_POINT(PFNGLBLENDFUNCSEPARATEEXTPROC, glBlendFuncSeparateEXT);
+    INIT_ENTRY_POINT(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
+    INIT_ENTRY_POINT(PFNGLCOMPILESHADERARBPROC, glCompileShaderARB);
+    INIT_ENTRY_POINT(PFNGLCREATEPROGRAMOBJECTARBPROC, glCreateProgramObjectARB);
+    INIT_ENTRY_POINT(PFNGLCREATESHADEROBJECTARBPROC, glCreateShaderObjectARB);
+    INIT_ENTRY_POINT(PFNGLDELETERENDERBUFFERSEXTPROC, glDeleteRenderbuffersEXT);
+    INIT_ENTRY_POINT(PFNGLDELETEFRAMEBUFFERSEXTPROC, glDeleteFramebuffersEXT);
+    INIT_ENTRY_POINT(PFNGLFOGCOORDFEXTPROC, glFogCoordfEXT);
+    INIT_ENTRY_POINT(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC, glFramebufferRenderbufferEXT);
+    INIT_ENTRY_POINT(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC, glFramebufferTexture2DEXT);
+    INIT_ENTRY_POINT(PFNGLGENFRAMEBUFFERSEXTPROC, glGenFramebuffersEXT);
+    INIT_ENTRY_POINT(PFNGLGENRENDERBUFFERSEXTPROC, glGenRenderbuffersEXT);
+    INIT_ENTRY_POINT(PFNGLGETINFOLOGARBPROC, glGetInfoLogARB);
+    INIT_ENTRY_POINT(PFNGLGETOBJECTPARAMETERIVARBPROC, glGetObjectParameterivARB);
+    INIT_ENTRY_POINT(PFNGLGETUNIFORMLOCATIONARBPROC, glGetUniformLocationARB);
+    INIT_ENTRY_POINT(PFNGLLINKPROGRAMARBPROC, glLinkProgramARB);
+    INIT_ENTRY_POINT(PFNGLMULTITEXCOORD2FARBPROC, glMultiTexCoord2fARB);
+    INIT_ENTRY_POINT(PFNGLRENDERBUFFERSTORAGEEXTPROC, glRenderbufferStorageEXT);
+    INIT_ENTRY_POINT(PFNGLSECONDARYCOLOR3FPROC, glSecondaryColor3f);
+    INIT_ENTRY_POINT(PFNGLSHADERSOURCEARBPROC, glShaderSourceARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM1FARBPROC, glUniform1fARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM1IARBPROC, glUniform1iARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM4FARBPROC, glUniform4fARB);
+    INIT_ENTRY_POINT(PFNGLUSEPROGRAMOBJECTARBPROC, glUseProgramObjectARB);
+}
+
 
 int screen_width, screen_height;
 
@@ -354,6 +428,8 @@ grSstWinOpen(
     CoreVideo_SetCaption("Glide64");
     fullscreen = 0;
 
+    InitGLPrototypes();
+
    // ZIGGY viewport_offset is WIN32 specific, with SDL just set it to zero
     viewport_offset = 0; //-10 //-20;
 
@@ -380,7 +456,6 @@ grSstWinOpen(
     if (nbTextureUnits == 1) display_warning("You need a video card that has at least 2 texture units");
   
   nbAuxBuffers = 0;
-  int getDisableAuxbuf();
   if (!getDisableAuxbuf())
     glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &nbAuxBuffers);
   if (nbAuxBuffers > 0)
@@ -414,7 +489,6 @@ grSstWinOpen(
     else
         fog_coord_support = 1;
 
-  int getEnableFBO();
   use_fbo = getEnableFBO();
 
   printf("use_fbo %d\n", use_fbo);
@@ -494,7 +568,6 @@ grSstWinOpen(
     save_w = save_h = 0;
   }
 
-  void FindBestDepthBias();
   FindBestDepthBias();
 
     init_geometry();

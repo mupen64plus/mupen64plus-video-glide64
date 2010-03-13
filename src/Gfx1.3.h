@@ -85,7 +85,9 @@ the plugin
 #include <fstream>
 
 #include <cstddef>      // offsetof
+#ifndef _WIN32
 #include <cmath>
+#endif
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
@@ -311,8 +313,8 @@ __inline void FRDP_E (const char *fmt, ...)
 
 #else
 #ifndef GCC
-#define FRDP(x)
-#define FRDP_E(x)
+#define FRDP(...)
+#define FRDP_E(...)
 #else // _WIN32
 inline void FRDP (const char *fmt, ...) {}
 inline void FRDP_E (const char *fmt, ...) {}

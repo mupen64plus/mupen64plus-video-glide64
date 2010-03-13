@@ -23,7 +23,7 @@
 
 #ifndef WINLNXDEFS_H
 #define WINLNXDEFS_H
-
+#ifndef WIN32
 typedef int BOOL;
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
@@ -62,6 +62,6 @@ typedef union _LARGE_INTEGER
 
 #define HIWORD(a) ((unsigned int)(a) >> 16)
 #define LOWORD(a) ((a) & 0xFFFF)
-
+#endif
 #endif // WINLNXDEFS_H
 

@@ -2,7 +2,7 @@
  * Glide64 - Glide video plugin for Nintendo 64 emulators.
  * http://bitbucket.org/wahrhaft/mupen64plus-video-glide64/
  *
- * Copyright (C) 2009 Jon Ring
+ * Copyright (C) 2010 Jon Ring
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +29,8 @@
 #include <stdio.h>
 
 #define LOG(...)
+
+void WriteLog(m64p_msg_level level, const char *msg, ...);
 
 //The Glide API originally used an integer to pick an enumerated resolution.
 //To accomodate arbitrary resolutions, pack it into a 32-bit struct

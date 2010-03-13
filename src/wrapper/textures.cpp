@@ -22,11 +22,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 
 #include "glide.h"
 #include "main.h"
+
+extern BOOL isExtensionSupported(const char *extension); // defined in main.cpp
 
 /* Napalm extensions to GrTextureFormat_t */
 #define GR_TEXFMT_ARGB_CMP_FXT1           0x11
@@ -374,7 +375,6 @@ grTexDownloadMipMap( GrChipID_t tmu,
     }
 
     if (packed_pixels_support < 0) {
-      BOOL isExtensionSupported(const char *extension); // defined in main.cpp
       if (isExtensionSupported("GL_EXT_packed_pixels") == FALSE)
         packed_pixels_support = 0;
       else

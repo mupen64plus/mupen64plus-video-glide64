@@ -50,7 +50,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "messagebox.h"
+#ifndef _WIN32
 #include <sys/time.h>
+#endif
 
 #include "osal_dynamiclib.h"
 
@@ -208,7 +210,23 @@ BOOL    capture_screen = 0;
 char    capture_path[256];
 
 void (*renderCallback)() = NULL;
+static void (*l_DebugCallback)(void *, int, const char *) = NULL;
+static void *l_DebugCallContext = NULL;
 
+
+void WriteLog(m64p_msg_level level, const char *msg, ...)
+{
+  char buf[1024];
+  va_list args;
+  va_start(args, msg);
+  vsnprintf(buf, 1023, msg, args);
+  buf[1023]='\0';
+  va_end(args);
+  if (l_DebugCallback)
+  {
+    l_DebugCallback(l_DebugCallContext, level, buf);
+  }
+}
 
 void ChangeSize ()
 {
@@ -300,7 +318,7 @@ void ReadSettings ()
   //  LOG("ReadSettings\n");
   if (!Config_Open())
   {
-    LOG("Could not open configuration!");
+    WriteLog(M64MSG_ERROR, "Could not open configuration!");
     return;
   }
   settings.card_id = (BYTE)Config_ReadInt ("card_id", 0);
@@ -1177,6 +1195,7 @@ EXPORT void CALL GetDllInfo ( PLUGIN_INFO * PluginInfo )
   // bswap on a dword (32 bits) boundry
 }
 
+#ifdef PERFORMANCE
 BOOL WINAPI QueryPerformanceCounter(PLARGE_INTEGER counter)
 {
    struct timeval tv;
@@ -1193,6 +1212,7 @@ BOOL WINAPI QueryPerformanceFrequency(PLARGE_INTEGER frequency)
    frequency->s.HighPart= 0;
    return TRUE;
 }
+#endif
 
 /******************************************************************
 Function: InitiateGFX

@@ -23,13 +23,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#ifndef _WIN32
 #include <string.h>
+#endif
 
-#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 
 #include "glide.h"
 #include "main.h"
+#include "m64p.h"
 
 static int fct[4], source0[4], operand0[4], source1[4], operand1[4], source2[4], operand2[4];
 static int fcta[4],sourcea0[4],operanda0[4],sourcea1[4],operanda1[4],sourcea2[4],operanda2[4];
@@ -779,7 +781,7 @@ void set_lambda()
 FX_ENTRY void FX_CALL 
 grConstantColorValue( GrColor_t value )
 {
-    LOG("grConstantColorValue(%d)\r\n", value);
+    WriteLog(M64MSG_VERBOSE, "grConstantColorValue(%d)\r\n", value);
     switch(lfb_color_fmt)
     {
     case GR_COLORFORMAT_ARGB:
@@ -951,7 +953,7 @@ grColorCombine(
                GrCombineLocal_t local, GrCombineOther_t other,
                FxBool invert )
 {
-    LOG("grColorCombine(%d,%d,%d,%d,%d)\r\n", function, factor, local, other, invert);
+    WriteLog(M64MSG_VERBOSE, "grColorCombine(%d,%d,%d,%d,%d)\r\n", function, factor, local, other, invert);
     if(glsl_support)
     {
         static int last_function = 0;
@@ -1855,7 +1857,7 @@ grTexCombine(
              FxBool alpha_invert
              )
 {
-    LOG("grTexCombine(%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, rgb_function, rgb_factor, alpha_function, alpha_factor, rgb_invert, alpha_invert);
+    WriteLog(M64MSG_VERBOSE, "grTexCombine(%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, rgb_function, rgb_factor, alpha_function, alpha_factor, rgb_invert, alpha_invert);
     if(glsl_support)
     {
         int num_tex;
@@ -2400,7 +2402,7 @@ grAlphaBlendFunction(
                      )
 {
     int sfactorRGB = 0, dfactorRGB = 0, sfactorAlpha = 0, dfactorAlpha = 0;
-    LOG("grAlphaBlendFunction(%d,%d,%d,%d)\r\n", rgb_sf, rgb_df, alpha_sf, alpha_df);
+    WriteLog(M64MSG_VERBOSE, "grAlphaBlendFunction(%d,%d,%d,%d)\r\n", rgb_sf, rgb_df, alpha_sf, alpha_df);
 
     switch(rgb_sf)
     {
@@ -2471,7 +2473,7 @@ grAlphaBlendFunction(
 FX_ENTRY void FX_CALL
 grAlphaTestReferenceValue( GrAlpha_t value )
 {
-    LOG("grAlphaTestReferenceValue(%d)\r\n", value);
+    WriteLog(M64MSG_VERBOSE, "grAlphaTestReferenceValue(%d)\r\n", value);
     alpha_ref = value;
     grAlphaTestFunction(alpha_func);
 }
@@ -2479,7 +2481,7 @@ grAlphaTestReferenceValue( GrAlpha_t value )
 FX_ENTRY void FX_CALL
 grAlphaTestFunction( GrCmpFnc_t function )
 {
-    LOG("grAlphaTestFunction(%d)\r\n", function);
+    WriteLog(M64MSG_VERBOSE, "grAlphaTestFunction(%d)\r\n", function);
     alpha_func = function;
     switch(function)
     {
@@ -2505,7 +2507,7 @@ grAlphaTestFunction( GrCmpFnc_t function )
 FX_ENTRY void FX_CALL 
 grFogMode( GrFogMode_t mode )
 {
-    LOG("grFogMode(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grFogMode(%d)\r\n", mode);
     switch(mode)
     {
     case GR_FOG_DISABLE:
@@ -2531,7 +2533,7 @@ grFogMode( GrFogMode_t mode )
 FX_ENTRY float FX_CALL
 guFogTableIndexToW( int i )
 {
-    LOG("guFogTableIndexToW(%d)\r\n", i);
+    WriteLog(M64MSG_VERBOSE, "guFogTableIndexToW(%d)\r\n", i);
     return (float)(pow(2.0, 3.0+(double)(i>>2)) / (8-(i&3)));
 }
 
@@ -2539,7 +2541,7 @@ FX_ENTRY void FX_CALL
 guFogGenerateLinear(GrFog_t *fogtable,
                     float nearZ, float farZ )
 {
-    LOG("guFogGenerateLinear(%f,%f)\r\n", nearZ, farZ);
+    WriteLog(M64MSG_VERBOSE, "guFogGenerateLinear(%f,%f)\r\n", nearZ, farZ);
     if(!glsl_support)
     {
         glFogi(GL_FOG_MODE, GL_LINEAR);
@@ -2571,14 +2573,14 @@ guFogGenerateLinear(GrFog_t *fogtable,
 FX_ENTRY void FX_CALL 
 grFogTable( const GrFog_t ft[] )
 {
-    LOG("grFogTable()\r\n");
+    WriteLog(M64MSG_VERBOSE, "grFogTable()\r\n");
 }
 
 FX_ENTRY void FX_CALL 
 grFogColorValue( GrColor_t fogcolor )
 {
     float color[4];
-    LOG("grFogColorValue(%x)\r\n", fogcolor);
+    WriteLog(M64MSG_VERBOSE, "grFogColorValue(%x)\r\n", fogcolor);
 
     switch(lfb_color_fmt)
     {
@@ -2606,7 +2608,7 @@ grFogColorValue( GrColor_t fogcolor )
 FX_ENTRY void FX_CALL 
 grChromakeyMode( GrChromakeyMode_t mode )
 {
-    LOG("grChromakeyMode(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grChromakeyMode(%d)\r\n", mode);
     switch(mode)
     {
     case GR_CHROMAKEY_DISABLE:
@@ -2625,7 +2627,7 @@ grChromakeyMode( GrChromakeyMode_t mode )
 FX_ENTRY void FX_CALL 
 grChromakeyValue( GrColor_t value )
 {
-    LOG("grChromakeyValue(%x)\r\n", value);
+    WriteLog(M64MSG_VERBOSE, "grChromakeyValue(%x)\r\n", value);
     if(!glsl_support)
         display_warning("grChromakeyValue");
     else
@@ -2702,7 +2704,7 @@ FX_ENTRY void FX_CALL
 grStipplePattern(
             GrStipplePattern_t stipple)
 {
-    LOG("grStipplePattern(%x)\r\n", stipple);
+    WriteLog(M64MSG_VERBOSE, "grStipplePattern(%x)\r\n", stipple);
     srand(stipple);
     setPattern();
 }
@@ -2712,7 +2714,7 @@ int getDisableDitheredAlpha();
 FX_ENTRY void FX_CALL
 grStippleMode( GrStippleMode_t mode )
 {
-    LOG("grStippleMode(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grStippleMode(%d)\r\n", mode);
     if(getDisableDitheredAlpha()) return;
     switch(mode)
     {
@@ -2758,7 +2760,7 @@ grColorCombineExt(GrCCUColor_t a, GrCombineMode_t a_mode,
                   GrCCUColor_t d, FxBool d_invert,
                   FxU32 shift, FxBool invert)
 {
-    LOG("grColorCombineExt(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d)\r\n", a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
+    WriteLog(M64MSG_VERBOSE, "grColorCombineExt(%d, %d, %d, %d, %d, %d, %d, %d, %d, %d)\r\n", a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
     if (invert) display_warning("grColorCombineExt : inverted result");
     if (shift) display_warning("grColorCombineExt : shift = %d", shift);
 
@@ -2940,7 +2942,7 @@ grAlphaCombineExt(GrACUColor_t a, GrCombineMode_t a_mode,
                   GrACUColor_t d, FxBool d_invert,
                   FxU32 shift, FxBool invert)
 {
-    LOG("grAlphaCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
+    WriteLog(M64MSG_VERBOSE, "grAlphaCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
     if (invert) display_warning("grAlphaCombineExt : inverted result");
     if (shift) display_warning("grAlphaCombineExt : shift = %d", shift);
 
@@ -3094,7 +3096,7 @@ grTexColorCombineExt(GrChipID_t       tmu,
                      FxU32 shift, FxBool invert)
 {
     int num_tex;
-    LOG("grTexColorCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
+    WriteLog(M64MSG_VERBOSE, "grTexColorCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
 
     if (invert) display_warning("grTexColorCombineExt : inverted result");
     if (shift) display_warning("grTexColorCombineExt : shift = %d", shift);
@@ -3459,7 +3461,7 @@ grTexAlphaCombineExt(GrChipID_t       tmu,
                      FxU32 shift, FxBool invert)
 {
     int num_tex;
-    LOG("grTexAlphaCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
+    WriteLog(M64MSG_VERBOSE, "grTexAlphaCombineExt(%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)\r\n", tmu, a, a_mode, b, b_mode, c, c_invert, d, d_invert, shift, invert);
 
     if (invert) display_warning("grTexAlphaCombineExt : inverted result");
     if (shift) display_warning("grTexAlphaCombineExt : shift = %d", shift);
@@ -3739,7 +3741,7 @@ grConstantColorValueExt(GrChipID_t    tmu,
                         GrColor_t     value)
 {
     int num_tex;
-    LOG("grConstantColorValueExt(%d,%d)\r\n", tmu, value);
+    WriteLog(M64MSG_VERBOSE, "grConstantColorValueExt(%d,%d)\r\n", tmu, value);
 
     if (tmu == GR_TMU0) num_tex = 1;
     else num_tex = 0;

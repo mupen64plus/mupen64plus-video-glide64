@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 
-#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 
 #include "glide.h"
@@ -257,7 +256,7 @@ grDepthMask( FxBool mask )
     glDepthMask(mask);
 }
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 float biasFactor = 0;
 void FindBestDepthBias()
 {
