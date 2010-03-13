@@ -23,6 +23,7 @@
 #define MAIN_H
 
 #ifdef WIN32
+    #include <SDL_opengl.h>
     extern PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
     extern PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
     extern PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
@@ -53,8 +54,9 @@
     extern PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
 #else
     #define GL_GLEXT_PROTOTYPES
+    #include <SDL_opengl.h>
 #endif
-#include <SDL_opengl.h>
+
 
 #include "../winlnxdefs.h"
 
