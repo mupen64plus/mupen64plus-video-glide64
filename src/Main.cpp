@@ -49,7 +49,7 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "messagebox.h"
+
 #ifndef _WIN32
 #include <sys/time.h>
 #endif
@@ -76,12 +76,6 @@ std::ofstream rdp_log;
 BOOL elog_open = FALSE;
 std::ofstream rdp_err;
 #endif
-
-int messagebox( const char *title, int flags, const char *fmt, ... )
-{
-    //TODO: remove this function
-    return 0;
-}
 
 GFX_INFO gfx;
 /* definitions of pointers to Core config functions */
@@ -603,7 +597,7 @@ void guLoadTextures ()
     }
     
     //tbuf_size *= 2;
-    printf("tbuf_size %gMb\n", tbuf_size/1024.0f/1024);
+    WriteLog(M64MSG_INFO, "tbuf_size %gMb\n", tbuf_size/1024.0f/1024);
     rdp.texbufs[0].tmu = GR_TMU0;
     rdp.texbufs[0].begin = grTexMinAddress(GR_TMU0);
     rdp.texbufs[0].end = rdp.texbufs[0].begin+tbuf_size;
@@ -727,7 +721,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
 
   if (settings.fb_hires)
   {
-    printf("fb_hires\n");
+      WriteLog(M64MSG_INFO, "fb_hires\n");
     GRWINOPENEXT grSstWinOpenExt = (GRWINOPENEXT)grGetProcAddress("grSstWinOpenExt");
     if (grSstWinOpenExt)
       gfx_context = grSstWinOpenExt ((FxU32)NULL,
@@ -750,7 +744,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
 
   if (!gfx_context)
   {
-    messagebox("Error", MB_OK|MB_ICONEXCLAMATION, "Error setting display mode");
+    WriteLog(M64MSG_ERROR, "Error setting display mode");
     grSstWinClose (gfx_context);
     grGlideShutdown ();
     return FALSE;
@@ -758,7 +752,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   
   // get the # of TMUs available
   grGet (GR_NUM_TMU, 4, (FxI32 *) &num_tmu);
-  printf("num_tmu %d\n", num_tmu);
+  WriteLog(M64MSG_INFO, "num_tmu %d\n", num_tmu);
   // get maximal texture size
   grGet (GR_MAX_TEXTURE_SIZE, 4, (FxI32 *) &max_tex_size);
   //num_tmu = 1;
@@ -766,7 +760,6 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   // Is mirroring allowed?
   const char *extensions = grGetString (GR_EXTENSION);
   
-  printf("bebefore\n");
   if (strstr (extensions, "TEXMIRROR"))
     sup_mirroring = 1;
   else
@@ -777,7 +770,6 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   else
     sup_32bit_tex = FALSE;
   
-  printf("bebefore2\n");
   if (settings.fb_hires)
   {
     const char * extstr = strstr(extensions, "TEXTUREBUFFER");
@@ -797,10 +789,8 @@ BOOL InitGfx (BOOL evoodoo_using_window)
     grTextureBufferExt = 0;
 
   grFramebufferCopyExt = (GRFRAMEBUFFERCOPYEXT) grGetProcAddress("grFramebufferCopyExt");
-  printf("before\n");
   grStippleModeExt = (GRSTIPPLE) grStippleMode;
   grStipplePatternExt = (GRSTIPPLE) grStipplePattern; 
-  printf("after\n");
   if (grStipplePatternExt)
     grStipplePatternExt(settings.stipple_pattern);
 
@@ -913,7 +903,7 @@ EXPORT void CALL ReadScreen2(void *dest, int *width, int *height, int front)
           line[x*3+2] = 0x40;
         }
       }
-      printf("[Glide64] Cannot save screenshot in windowed mode!\n");
+      WriteLog(M64MSG_WARNING, "[Glide64] Cannot save screenshot in windowed mode?\n");
       return;
     }
     
@@ -945,6 +935,8 @@ EXPORT void CALL ReadScreen2(void *dest, int *width, int *height, int front)
 EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Context,
                                    void (*DebugCallback)(void *, int, const char *))
 {
+    l_DebugCallback = DebugCallback;
+    l_DebugCallContext = Context;
     ConfigOpenSection = (ptr_ConfigOpenSection) osal_dynlib_getproc(CoreLibHandle, "ConfigOpenSection");
     ConfigSetParameter = (ptr_ConfigSetParameter) osal_dynlib_getproc(CoreLibHandle, "ConfigSetParameter");
     ConfigGetParameter = (ptr_ConfigGetParameter) osal_dynlib_getproc(CoreLibHandle, "ConfigGetParameter");
@@ -967,7 +959,7 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
         !ConfigGetParamInt   || !ConfigGetParamFloat   || !ConfigGetParamBool   || !ConfigGetParamString ||
         !ConfigGetSharedDataFilepath || !ConfigGetUserConfigPath || !ConfigGetUserDataPath || !ConfigGetUserCachePath)
     {
-        printf("Couldn't connect to Core configuration functions");
+        WriteLog(M64MSG_ERROR, "Couldn't connect to Core configuration functions");
         return M64ERR_INCOMPATIBLE;
     }
 
@@ -986,14 +978,22 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
         !CoreVideo_SetCaption || !CoreVideo_ToggleFullScreen || !CoreVideo_GL_GetProcAddress ||
         !CoreVideo_GL_SetAttribute || !CoreVideo_GL_SwapBuffers)
     {
-        printf("Couldn't connect to Core configuration functions");
+        WriteLog(M64MSG_ERROR, "Couldn't connect to Core video functions");
         return M64ERR_INCOMPATIBLE;
     }
 
-    SetConfigDir(ConfigGetSharedDataFilepath("Glide64.ini"));
-
-    CoreVideo_Init();
-    return M64ERR_SUCCESS;
+    const char *configDir = ConfigGetSharedDataFilepath("Glide64.ini");
+    if (configDir)
+    {
+        SetConfigDir(configDir);
+        CoreVideo_Init();
+        return M64ERR_SUCCESS;
+    }
+    else
+    {
+        WriteLog(M64MSG_ERROR, "Couldn't find Glide64.ini");
+        return M64ERR_FILES;
+    }
 }
 
 EXPORT m64p_error CALL PluginShutdown(void)
@@ -1127,6 +1127,7 @@ EXPORT void CALL CloseDLL (void)
   ClearCache ();
 }
 
+#if 0
 /******************************************************************
 Function: DllAbout
 Purpose:  This function is optional function that is provided
@@ -1149,6 +1150,7 @@ EXPORT void CALL DllAbout ( HWND hParent )
           "Thanks to EmuXHaven for hosting my site:\nhttp://glide64.emuxhaven.net/\n\n"
           "Official development channel: #Glide64 on EFnet\nNO ROM REQUESTS / NO BETA REQUESTS");
 }
+#endif
 
 /******************************************************************
 Function: DllTest
@@ -1296,7 +1298,7 @@ output:   none
 *******************************************************************/ 
 EXPORT void CALL MoveScreen (int xpos, int ypos)
 {
-  LOG ("MoveScreen (" << xpos << ", " << ypos << ")\n");
+  LOG ("MoveScreen");
 }
 
 /******************************************************************
@@ -1384,7 +1386,7 @@ EXPORT int CALL RomOpen (void)
   ReadSpecialSettings (name);
 
 
-  printf("fb_clear %d fb_smart %d\n", settings.fb_depth_clear, settings.fb_smart);
+  WriteLog(M64MSG_INFO, "fb_clear %d fb_smart %d\n", settings.fb_depth_clear, settings.fb_smart);
 
   
   rdp_reset ();
@@ -1400,7 +1402,7 @@ EXPORT int CALL RomOpen (void)
     grSstSelect (0);
   }
   const char *extensions = grGetString (GR_EXTENSION);
-  printf("extensions '%s'\n", extensions);
+  WriteLog(M64MSG_INFO, "extensions '%s'\n", extensions);
   if (!fullscreen)
   {
     grGlideShutdown ();

@@ -140,12 +140,12 @@ BOOL INI_Open ()
     }
    
     //strncat (path, "Glide64.ini", PATH_MAX - strlen(path));
-    printf("opening %s\n", path);
+    WriteLog(M64MSG_INFO, "opening %s\n", path);
     // Open the file
     ini = fopen (path, "rb");
     if (ini == NULL)
     {
-        printf("Could not find Glide64.ini!\n");
+        WriteLog(M64MSG_ERROR, "Could not find Glide64.ini!");
         return FALSE;
         /*
         ini = fopen (path, "w+b");

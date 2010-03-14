@@ -1402,7 +1402,7 @@ grAlphaCombine(
                FxBool invert
                )
 {
-    LOG("grAlphaCombine(%d,%d,%d,%d,%d)\r\n", function, factor, local, other, invert);
+    WriteLog(M64MSG_VERBOSE, "grAlphaCombine(%d,%d,%d,%d,%d)\r\n", function, factor, local, other, invert);
     if(glsl_support)
     {
         static int last_function = 0;

@@ -83,7 +83,7 @@ void init_geometry()
 FX_ENTRY void FX_CALL 
 grCoordinateSpace( GrCoordinateSpaceMode_t mode )
 {
-    LOG("grCoordinateSpace(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grCoordinateSpace(%d)\r\n", mode);
     switch(mode)
     {
     case GR_WINDOW_COORDS:
@@ -96,7 +96,7 @@ grCoordinateSpace( GrCoordinateSpaceMode_t mode )
 FX_ENTRY void FX_CALL
 grVertexLayout(FxU32 param, FxI32 offset, FxU32 mode)
 {
-    LOG("grVertexLayout(%d,%d,%d)\r\n", param, offset, mode);
+    WriteLog(M64MSG_VERBOSE, "grVertexLayout(%d,%d,%d)\r\n", param, offset, mode);
     switch(param)
     {
     case GR_PARAM_XY:
@@ -135,7 +135,7 @@ grVertexLayout(FxU32 param, FxI32 offset, FxU32 mode)
 FX_ENTRY void FX_CALL 
 grCullMode( GrCullMode_t mode )
 {
-    LOG("grCullMode(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grCullMode(%d)\r\n", mode);
   static int oldmode = -1, oldinv = -1;
     culling_mode = mode;
   if (inverted_culling == oldinv && oldmode == mode)
@@ -171,7 +171,7 @@ grCullMode( GrCullMode_t mode )
 FX_ENTRY void FX_CALL
 grDepthBufferMode( GrDepthBufferMode_t mode )
 {
-    LOG("grDepthBufferMode(%d)\r\n", mode);
+    WriteLog(M64MSG_VERBOSE, "grDepthBufferMode(%d)\r\n", mode);
     switch(mode)
     {
     case GR_DEPTHBUFFER_DISABLE:
@@ -196,7 +196,7 @@ grDepthBufferMode( GrDepthBufferMode_t mode )
 FX_ENTRY void FX_CALL 
 grDepthBufferFunction( GrCmpFnc_t function )
 {
-    LOG("grDepthBufferFunction(%d)\r\n", function);
+    WriteLog(M64MSG_VERBOSE, "grDepthBufferFunction(%d)\r\n", function);
     switch(function)
     {
     case GR_CMP_GEQUAL:
@@ -250,7 +250,7 @@ grDepthBufferFunction( GrCmpFnc_t function )
 FX_ENTRY void FX_CALL 
 grDepthMask( FxBool mask )
 {
-    LOG("grDepthMask(%d)\r\n", mask);
+    WriteLog(M64MSG_VERBOSE, "grDepthMask(%d)\r\n", mask);
     glDepthMask(mask);
 }
 
@@ -289,9 +289,9 @@ void FindBestDepthBias()
       bestz = z;
       biasFactor = f;
     }
-    printf("f %g z %g\n", f, z);
+    WriteLog(M64MSG_VERBOSE, "f %g z %g\n", f, z);
   }
-  printf(" --> bias factor %g\n", biasFactor);
+  WriteLog(M64MSG_INFO, " --> bias factor %g\n", biasFactor);
   glPopAttrib();
 
 //   SDL_GL_SwapBuffers();
@@ -301,7 +301,7 @@ void FindBestDepthBias()
 FX_ENTRY void FX_CALL 
 grDepthBiasLevel( FxI32 level )
 {
-    LOG("grDepthBiasLevel(%d)\r\n", level);
+    WriteLog(M64MSG_VERBOSE, "grDepthBiasLevel(%d)\r\n", level);
   //depth_bias = level;
     if (level)
     {
@@ -356,7 +356,7 @@ grDrawTriangle( const void *a, const void *b, const void *c )
     float *c_s1 = (float*)c + st1_off/sizeof(float);
     float *c_t1 = (float*)c + st1_off/sizeof(float) + 1;
     float *c_fog = (float*)c + fog_ext_off/sizeof(float);
-    LOG("grDrawTriangle()\r\n");
+    WriteLog(M64MSG_VERBOSE, "grDrawTriangle()\r\n");
 
     //if(*a_fog == 0.0f) *a_fog = 1.0f;
     //if(*b_fog == 0.0f) *b_fog = 1.0f;
@@ -515,7 +515,7 @@ grDrawPoint( const void *pt )
     float *s1 = (float*)pt + st1_off/sizeof(float);
     float *t1 = (float*)pt + st1_off/sizeof(float) + 1;
     float *fog = (float*)pt + fog_ext_off/sizeof(float);
-    LOG("grDrawPoint()\r\n");
+    WriteLog(M64MSG_VERBOSE, "grDrawPoint()\r\n");
 
   reloadTexture();
 
@@ -591,7 +591,7 @@ grDrawLine( const void *a, const void *b )
     float *b_s1 = (float*)b + st1_off/sizeof(float);
     float *b_t1 = (float*)b + st1_off/sizeof(float) + 1;
     float *b_fog = (float*)b + fog_ext_off/sizeof(float);
-    LOG("grDrawLine()\r\n");
+    WriteLog(M64MSG_VERBOSE, "grDrawLine()\r\n");
 
     //if(*a_fog == 0.0f) *a_fog = 1.0f;
     //if(*b_fog == 0.0f) *b_fog = 1.0f;
@@ -691,7 +691,7 @@ grDrawVertexArray(FxU32 mode, FxU32 Count, void *pointers2)
     float *x, *y, *q, *s0, *t0, *s1, *t1, *z, *fog;
     unsigned char *pargb;
         void **pointers = (void**)pointers2;
-    LOG("grDrawVertexArray(%d,%d)\r\n", mode, Count);
+    WriteLog(M64MSG_VERBOSE, "grDrawVertexArray(%d,%d)\r\n", mode, Count);
 
   reloadTexture();
 
@@ -775,7 +775,7 @@ grDrawVertexArrayContiguous(FxU32 mode, FxU32 Count, void *pointers, FxU32 strid
     unsigned int i;
     float *x, *y, *q, *s0, *t0, *s1, *t1, *z, *fog;
     unsigned char *pargb;
-    LOG("grDrawVertexArrayContiguous(%d,%d,%d)\r\n", mode, Count, stride);
+    WriteLog(M64MSG_VERBOSE, "grDrawVertexArrayContiguous(%d,%d,%d)\r\n", mode, Count, stride);
 
   // ZIGGY apparently, grDrawVertexArrayContiguous is only used to overwrite the
   // whole screen, so we treat it as a grClearBuffer, no need to reload the texture

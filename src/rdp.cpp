@@ -53,7 +53,6 @@
 #include "CRC.h"
 #include "rdp.h"
 
-#include "messagebox.h"
 #ifndef _WIN32
 #include <sys/time.h>
 #endif // _WIN32
@@ -400,15 +399,14 @@ void microcheck ()
     INI_FindSection ("UCODE");
     FRDP("ucode = %s\n", str);
     int uc = INI_ReadInt (str, -2, 0);
-    printf("ucode = %d\n", uc);
+    WriteLog(M64MSG_INFO, "ucode = %d\n", uc);
     if (uc == -2 && ucode_error_report)
     {
         Config_Open();
         settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
-        sprintf (out_buf, "Error: uCode crc not found in INI, using currently selected uCode\n\n%08lx", (unsigned long)uc_crc);
-        messagebox("Error", MB_OK|MB_ICONEXCLAMATION, out_buf);
+        WriteLog(M64MSG_ERROR, "Error: uCode crc not found in INI, using currently selected uCode\n\n%08lx", (unsigned long)uc_crc);
         
         ucode_error_report = FALSE; // don't report any more ucode errors from this game
     }
@@ -418,8 +416,7 @@ void microcheck ()
         settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
-        sprintf (out_buf, "Error: Unsupported uCode!\n\ncrc: %08lx", (unsigned long)uc_crc);
-        messagebox("Error", MB_OK|MB_ICONEXCLAMATION, out_buf);
+        WriteLog(M64MSG_ERROR, "Error: Unsupported uCode!\n\ncrc: %08lx", (unsigned long)uc_crc);
         
         ucode_error_report = FALSE; // don't report any more ucode errors from this game
     }
@@ -820,9 +817,9 @@ static void CopyFrameBuffer (GrBuffer_t buffer = GR_BUFFER_BACKBUFFER)
       {
         RDP ("Framebuffer copy failed.\n");
       }
-    printf("erf\n");
+
       } else {
-    printf("youhou\n");
+
     if (grLfbLock (GR_LFB_READ_ONLY,
                buffer,
                GR_LFBWRITEMODE_888,
@@ -1084,8 +1081,8 @@ EXPORT void CALL ProcessDList(void)
     } catch (...) {
         
         if (fullscreen) ReleaseGfx ();
-        if (messagebox("Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?") == 2)
-            exception = TRUE;
+        WriteLog(M64MSG_ERROR, "The GFX plugin caused an exception and has been disabled.");
+        exception = TRUE;
     }
 #endif
     
@@ -3189,7 +3186,6 @@ output:   none
 *******************************************************************/ 
 EXPORT void CALL FBRead(DWORD addr)
 {
-  printf("FBRead\n");
     LOG ("FBRead ()\n");
     
   if (cpu_fb_ignore)
@@ -3803,8 +3799,8 @@ EXPORT void CALL ProcessRDPList(void)
     } catch (...) {
         
         if (fullscreen) ReleaseGfx ();
-        if (messagebox("Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?") == 2)
-            exception = TRUE;
+        WriteLog(M64MSG_ERROR, "The GFX plugin caused an exception and has been disabled.");
+        exception = TRUE;
     }
 #endif
     
@@ -3841,7 +3837,7 @@ EXPORT void CALL ProcessRDPList(void)
 
 
   
-  printf("ProcessRPDList %x %x %x\n",
+  WriteLog(M64MSG_VERBOSE, "ProcessRPDList %x %x %x\n",
          *gfx.DPC_START_REG,
          *gfx.DPC_END_REG,
          *gfx.DPC_CURRENT_REG);

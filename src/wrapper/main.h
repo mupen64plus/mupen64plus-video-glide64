@@ -22,6 +22,8 @@
 #ifndef MAIN_H
 #define MAIN_H
 
+#include "../m64p.h"
+
 #ifdef WIN32
     #include <SDL_opengl.h>
     extern PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
@@ -285,7 +287,7 @@ void LOG(char *text, ...);
 #else // LOGGING
 #define OPEN_LOG()
 #define CLOSE_LOG()
-#define LOG(...)
+//#define LOG(...)
 #endif // LOGGING
 
 #endif

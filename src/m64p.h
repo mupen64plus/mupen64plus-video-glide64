@@ -28,8 +28,6 @@
 #include "m64p_vidext.h"
 #include <stdio.h>
 
-#define LOG(...)
-
 void WriteLog(m64p_msg_level level, const char *msg, ...);
 
 //The Glide API originally used an integer to pick an enumerated resolution.
