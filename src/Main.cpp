@@ -1008,7 +1008,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
         *PluginType = M64PLUGIN_GFX;
 
     if (PluginVersion != NULL)
-        *PluginVersion = 0x016300;
+        *PluginVersion = 0x016303;
 
     if (APIVersion != NULL)
         *APIVersion = PLUGIN_API_VERSION;
