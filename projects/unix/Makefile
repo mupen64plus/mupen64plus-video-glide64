@@ -226,6 +226,9 @@ SOURCE = \
 	$(SRCDIR)/wrapper/main.cpp \
 	$(SRCDIR)/wrapper/textures.cpp 
 
+# only export api symbols
+LDFLAGS += -Wl,-version-script,$(SRCDIR)/video_api_export.ver
+
 
 
 # generate a list of object files build, make a temporary directory for them
