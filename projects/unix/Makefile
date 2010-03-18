@@ -80,14 +80,14 @@ ifeq ("$(CPU)","NONE")
 endif
 
 # base CFLAGS, LIBS, and LDFLAGS
-CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -I../../src -I../../src/wrapper -DGCC
+CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC
 CXXFLAGS += -fvisibility-inlines-hidden
 LDFLAGS += -ldl
 
 # Since we are building a shared library, we must compile with -fPIC for x86_64 CPUs.
 # On 32-bit systems we do not want to use -fPIC because we don't have to and it has a big performance penalty on this arch
 ifeq ($(ARCH_DETECTED), 64BITS)
-  CFLAGS += -fpic -DPIC -fvisibility=hidden
+  CFLAGS += -fpic -DPIC
 endif
 # tweak flags for 32-bit build on 64-bit system
 ifeq ($(ARCH_DETECTED), 64BITS_32)
