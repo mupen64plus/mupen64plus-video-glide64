@@ -111,7 +111,7 @@ n** -----------------------------------------------------------------------
 /* Check for OS */
 #if defined(__IRIX__) || defined(__sparc__) || defined(__linux__) || \
     defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || \
-    defined(__APPLE__)
+    defined(__APPLE__) || defined(__FreeBSD_kernel__)
 #  define GLIDE_OS        GLIDE_OS_UNIX
 #elif defined(__DOS__)
 #  define GLIDE_OS        GLIDE_OS_DOS32
