@@ -384,7 +384,7 @@ void math_init()
   if (IsSSE)
   {
     MulMatrices = MulMatricesSSE;
-    LOG("SSE detected.\n");
+    WriteLog(M64MSG_INFO, "SSE detected.\n");
   }
 }
 

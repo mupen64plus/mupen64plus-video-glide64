@@ -54,7 +54,6 @@
 #include "rdp.h"
 
 #ifndef _WIN32
-#include "messagebox.h"
 #include <sys/time.h>
 #endif // _WIN32
 
@@ -65,7 +64,7 @@ DWORD frame_count;  // frame counter
 BOOL ucode_error_report = TRUE;
 int wrong_tile = -1;
 
-#if defined(NO_ASM)
+#if defined(WIN32) || defined(NO_ASM)
   #define BYTESWAP1(s1) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24);
   #define BYTESWAP2(s1,s2) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24); \
   s2 = ((s2 & 0xff) << 24) | ((s2 & 0xff00) << 8) | ((s2 & 0xff0000) >> 8) | ((s2 & 0xff000000) >> 24);
@@ -400,19 +399,14 @@ void microcheck ()
     INI_FindSection ("UCODE");
     FRDP("ucode = %s\n", str);
     int uc = INI_ReadInt (str, -2, 0);
-    printf("ucode = %d\n", uc);
+    WriteLog(M64MSG_INFO, "ucode = %d\n", uc);
     if (uc == -2 && ucode_error_report)
     {
         Config_Open();
         settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
-        sprintf (out_buf, "Error: uCode crc not found in INI, using currently selected uCode\n\n%08lx", (unsigned long)uc_crc);
-#ifdef _WIN32
-        MessageBox (gfx.hWnd, out_buf, "Error", MB_OK|MB_ICONEXCLAMATION);
-#else // _WIN32
-       messagebox("Error", MB_OK|MB_ICONEXCLAMATION, out_buf);
-#endif // _WIN32
+        WriteLog(M64MSG_ERROR, "Error: uCode crc not found in INI, using currently selected uCode\n\n%08lx", (unsigned long)uc_crc);
         
         ucode_error_report = FALSE; // don't report any more ucode errors from this game
     }
@@ -422,12 +416,7 @@ void microcheck ()
         settings.ucode = Config_ReadInt ("ucode", 0);
         
         ReleaseGfx ();
-        sprintf (out_buf, "Error: Unsupported uCode!\n\ncrc: %08lx", (unsigned long)uc_crc);
-#ifdef _WIN32
-        MessageBox (gfx.hWnd, out_buf, "Error", MB_OK|MB_ICONEXCLAMATION);
-#else // _WIN32
-       messagebox("Error", MB_OK|MB_ICONEXCLAMATION, out_buf);
-#endif // _WIN32
+        WriteLog(M64MSG_ERROR, "Error: Unsupported uCode!\n\ncrc: %08lx", (unsigned long)uc_crc);
         
         ucode_error_report = FALSE; // don't report any more ucode errors from this game
     }
@@ -439,53 +428,9 @@ void microcheck ()
     }
 }
 
-#ifdef _WIN32
-RECT prev_rect;
-#endif // _WIN32
-
 void drawNoFullscreenMessage()
 {
     LOG ("drawNoFullscreenMessage ()\n");
-#ifdef _WIN32
-    SIZE str_size;
-    RECT win_rect;
-    HWND active_wnd = GetForegroundWindow ();
-    
-    GetClientRect (gfx.hWnd, &win_rect);
-    if (win_rect.bottom != prev_rect.bottom ||
-        win_rect.right != prev_rect.right ||
-        rdp.window_changed)
-    {
-        rdp.window_changed = FALSE;
-        
-        prev_rect.bottom = win_rect.bottom;
-        prev_rect.right = win_rect.right;
-        
-        HDC hdc = GetDC(gfx.hWnd);
-        SetBkMode (hdc, TRANSPARENT);
-        SetTextColor (hdc, RGB(255,255,255));
-        
-        FillRect (hdc, &win_rect, (HBRUSH)GetStockObject(DKGRAY_BRUSH));
-        
-        win_rect.bottom >>= 1;
-        win_rect.right >>= 1;
-        
-        sprintf (out_buf, "Glide64");
-        GetTextExtentPoint32 (hdc, out_buf, strlen(out_buf), &str_size);
-        TextOut (hdc, win_rect.right - (str_size.cx>>1),
-            win_rect.bottom - str_size.cy - 32, out_buf, strlen(out_buf));
-        
-        sprintf (out_buf, "Gfx cannot be drawn in windowed mode");
-        GetTextExtentPoint32 (hdc, out_buf, strlen(out_buf), &str_size);
-        TextOut (hdc, win_rect.right - (str_size.cx>>1),
-            win_rect.bottom - str_size.cy - 2, out_buf, strlen(out_buf));
-        
-        sprintf (out_buf, "Press Alt+Enter to switch to fullscreen");
-        GetTextExtentPoint32 (hdc, out_buf, strlen(out_buf), &str_size);
-        TextOut (hdc, win_rect.right - (str_size.cx>>1),
-            win_rect.bottom + 2, out_buf, strlen(out_buf));
-    }
-#endif // _WIN32
 }
 
 static WORD yuv_to_rgb(BYTE y, BYTE u, BYTE v)
@@ -872,9 +817,9 @@ static void CopyFrameBuffer (GrBuffer_t buffer = GR_BUFFER_BACKBUFFER)
       {
         RDP ("Framebuffer copy failed.\n");
       }
-    printf("erf\n");
+
       } else {
-    printf("youhou\n");
+
     if (grLfbLock (GR_LFB_READ_ONLY,
                buffer,
                GR_LFBWRITEMODE_888,
@@ -996,11 +941,6 @@ EXPORT void CALL ProcessDList(void)
             return;
         }
         fullscreen = TRUE;
-#ifdef _WIN32
-        if (gfx.hStatusBar)
-          ShowWindow( gfx.hStatusBar, SW_HIDE );
-        ShowCursor( FALSE );
-#endif // _WIN32
     }
     
     // Clear out the RDP log
@@ -1141,13 +1081,8 @@ EXPORT void CALL ProcessDList(void)
     } catch (...) {
         
         if (fullscreen) ReleaseGfx ();
-# ifdef _WIN32
-        if (MessageBox (gfx.hWnd, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?", "Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION) == IDNO)
-            exception = TRUE;
-# else // _WIN32
-       if (messagebox("Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?") == 2)
-         exception = TRUE;
-# endif // _WIN32
+        WriteLog(M64MSG_ERROR, "The GFX plugin caused an exception and has been disabled.");
+        exception = TRUE;
     }
 #endif
     
@@ -3251,7 +3186,6 @@ output:   none
 *******************************************************************/ 
 EXPORT void CALL FBRead(DWORD addr)
 {
-  printf("FBRead\n");
     LOG ("FBRead ()\n");
     
   if (cpu_fb_ignore)
@@ -3723,11 +3657,6 @@ EXPORT void CALL ProcessRDPList(void)
             return;
         }
         fullscreen = TRUE;
-#ifdef _WIN32
-        if (gfx.hStatusBar)
-          ShowWindow( gfx.hStatusBar, SW_HIDE );
-        ShowCursor( FALSE );
-#endif // _WIN32
     }
     
     // Clear out the RDP log
@@ -3870,13 +3799,8 @@ EXPORT void CALL ProcessRDPList(void)
     } catch (...) {
         
         if (fullscreen) ReleaseGfx ();
-# ifdef _WIN32
-        if (MessageBox (gfx.hWnd, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?", "Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION) == IDNO)
-            exception = TRUE;
-# else // _WIN32
-       if (messagebox("Glide64 Exception", MB_YESNO|MB_ICONEXCLAMATION, "The GFX plugin caused an exception and has been disabled.\nWould you like to turn it back on and attempt to continue?") == 2)
-         exception = TRUE;
-# endif // _WIN32
+        WriteLog(M64MSG_ERROR, "The GFX plugin caused an exception and has been disabled.");
+        exception = TRUE;
     }
 #endif
     
@@ -3913,7 +3837,7 @@ EXPORT void CALL ProcessRDPList(void)
 
 
   
-  printf("ProcessRPDList %x %x %x\n",
+  WriteLog(M64MSG_VERBOSE, "ProcessRPDList %x %x %x\n",
          *gfx.DPC_START_REG,
          *gfx.DPC_END_REG,
          *gfx.DPC_CURRENT_REG);

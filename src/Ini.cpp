@@ -41,14 +41,8 @@
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include "Ini.h"
-
-FILE *ini;
-int sectionstart;
-int last_line;      // last good line
-int last_line_ret;  // last line ended in return?
-WORD cr = 0x0A0D;
-static char configdir[PATH_MAX] = {0};
-
+#include "Gfx1.3.h"
+#include <limits.h>
 #ifndef _WIN32
 #include <unistd.h>
 #include <string.h>
@@ -60,6 +54,17 @@ static char configdir[PATH_MAX] = {0};
 #ifndef _WIN32
 #include <sys/resource.h>
 #endif
+
+#ifdef _WIN32
+#define PATH_MAX _MAX_PATH
+#endif
+
+FILE *ini;
+int sectionstart;
+int last_line;      // last good line
+int last_line_ret;  // last line ended in return?
+WORD cr = 0x0A0D;
+static char configdir[PATH_MAX] = {0};
 
 BOOL INI_Open ()
 {
@@ -135,12 +140,12 @@ BOOL INI_Open ()
     }
    
     //strncat (path, "Glide64.ini", PATH_MAX - strlen(path));
-    printf("opening %s\n", path);
+    WriteLog(M64MSG_INFO, "opening %s\n", path);
     // Open the file
     ini = fopen (path, "rb");
     if (ini == NULL)
     {
-        printf("Could not find Glide64.ini!\n");
+        WriteLog(M64MSG_ERROR, "Could not find Glide64.ini!");
         return FALSE;
         /*
         ini = fopen (path, "w+b");

@@ -22,11 +22,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 
 #include "glide.h"
 #include "main.h"
+
+extern BOOL isExtensionSupported(const char *extension); // defined in main.cpp
 
 /* Napalm extensions to GrTextureFormat_t */
 #define GR_TEXFMT_ARGB_CMP_FXT1           0x11
@@ -160,14 +161,14 @@ void free_textures()
 FX_ENTRY FxU32 FX_CALL 
 grTexMinAddress( GrChipID_t tmu )
 {
-    LOG("grTexMinAddress(%d)\r\n", tmu);
+    WriteLog(M64MSG_VERBOSE, "grTexMinAddress(%d)\r\n", tmu);
     return tmu*TMU_SIZE;
 }
 
 FX_ENTRY FxU32 FX_CALL 
 grTexMaxAddress( GrChipID_t tmu )
 {
-    LOG("grTexMaxAddress(%d)\r\n", tmu);
+    WriteLog(M64MSG_VERBOSE, "grTexMaxAddress(%d)\r\n", tmu);
     return tmu*TMU_SIZE + TMU_SIZE - 1;
 }
 
@@ -176,7 +177,7 @@ grTexTextureMemRequired( FxU32     evenOdd,
                                  GrTexInfo *info   )
 {
     int width, height;
-    LOG("grTextureMemRequired(%d)\r\n", evenOdd);
+    WriteLog(M64MSG_VERBOSE, "grTextureMemRequired(%d)\r\n", evenOdd);
     if (info->largeLodLog2 != info->smallLodLog2) display_warning("grTexTextureMemRequired : loading more than one LOD");
 
     if (info->aspectRatioLog2 < 0)
@@ -217,7 +218,7 @@ grTexCalcMemRequired(
                      GrAspectRatio_t aspect, GrTextureFormat_t fmt)
 {
     int width, height;
-    LOG("grTexCalcMemRequired(%d, %d, %d, %d)\r\n", lodmin, lodmax, aspect, fmt);
+    WriteLog(M64MSG_VERBOSE, "grTexCalcMemRequired(%d, %d, %d, %d)\r\n", lodmin, lodmax, aspect, fmt);
     if (lodmax != lodmin) display_warning("grTexCalcMemRequired : loading more than one LOD");
 
     if (aspect < 0)
@@ -359,7 +360,7 @@ grTexDownloadMipMap( GrChipID_t tmu,
     int glformat = GL_RGBA8;
     int gltexfmt, glpixfmt, glpackfmt;
     gltexfmt = glpixfmt = glpackfmt = 0;
-    LOG("grTexDownloadMipMap(%d,%d,%d)\r\n", tmu, startAddress, evenOdd);
+    WriteLog(M64MSG_VERBOSE, "grTexDownloadMipMap(%d,%d,%d)\r\n", tmu, startAddress, evenOdd);
     if (info->largeLodLog2 != info->smallLodLog2) display_warning("grTexDownloadMipMap : loading more than one LOD");
 
     if (info->aspectRatioLog2 < 0)
@@ -374,7 +375,6 @@ grTexDownloadMipMap( GrChipID_t tmu,
     }
 
     if (packed_pixels_support < 0) {
-      BOOL isExtensionSupported(const char *extension); // defined in main.cpp
       if (isExtensionSupported("GL_EXT_packed_pixels") == FALSE)
         packed_pixels_support = 0;
       else
@@ -548,7 +548,7 @@ grTexSource( GrChipID_t tmu,
              FxU32      evenOdd,
              GrTexInfo  *info )
 {
-    LOG("grTexSource(%d,%d,%d)\r\n", tmu, startAddress, evenOdd);
+    WriteLog(M64MSG_VERBOSE, "grTexSource(%d,%d,%d)\r\n", tmu, startAddress, evenOdd);
     //if ((startAddress+1) == pBufferAddress && render_to_texture) updateTexture();
     //if ((startAddress+1) == pBufferAddress) display_warning("texsource");
     
@@ -644,7 +644,7 @@ grTexDetailControl(
                    float detail_max
                    )
 {
-    LOG("grTexDetailControl(%d,%d,%d,%d)\r\n", tmu, lod_bias, detail_scale, detail_max);
+    WriteLog(M64MSG_VERBOSE, "grTexDetailControl(%d,%d,%d,%d)\r\n", tmu, lod_bias, detail_scale, detail_max);
     if (lod_bias != 31 && detail_scale != 7)
     {
         if (!lod_bias && !detail_scale && !detail_max) return;
@@ -691,7 +691,7 @@ grTexDetailControl(
 FX_ENTRY void FX_CALL 
 grTexLodBiasValue(GrChipID_t tmu, float bias )
 {
-    LOG("grTexLodBiasValue(%d,%f)\r\n", tmu, bias);
+    WriteLog(M64MSG_VERBOSE, "grTexLodBiasValue(%d,%f)\r\n", tmu, bias);
     /*if (bias != 0 && bias != 1.0f)
         display_warning("grTexLodBiasValue : %f", bias);*/
 }
@@ -703,7 +703,7 @@ grTexFilterMode(
                 GrTextureFilterMode_t magfilter_mode
                 )
 {
-    LOG("grTexFilterMode(%d,%d,%d)\r\n", tmu, minfilter_mode, magfilter_mode);
+    WriteLog(M64MSG_VERBOSE, "grTexFilterMode(%d,%d,%d)\r\n", tmu, minfilter_mode, magfilter_mode);
     if (tmu == GR_TMU1 || nbTextureUnits <= 2)
     {
         if (tmu == GR_TMU1 && nbTextureUnits <= 2) return;
@@ -738,7 +738,7 @@ grTexClampMode(
                GrTextureClampMode_t t_clampmode
                )
 {
-    LOG("grTexClampMode(%d, %d, %d)\r\n", tmu, s_clampmode, t_clampmode);
+    WriteLog(M64MSG_VERBOSE, "grTexClampMode(%d, %d, %d)\r\n", tmu, s_clampmode, t_clampmode);
     if (tmu == GR_TMU1 || nbTextureUnits <= 2)
     {
         if (tmu == GR_TMU1 && nbTextureUnits <= 2) return;

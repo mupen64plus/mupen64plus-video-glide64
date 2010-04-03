@@ -22,9 +22,46 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <SDL_opengl.h>
+#include "../m64p.h"
+
+#ifdef WIN32
+    #include <SDL_opengl.h>
+    extern PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
+    extern PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
+    extern PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+    extern PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
+    extern PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT;
+    extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+    extern PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+    extern PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
+    extern PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB;
+    extern PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
+    extern PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+    extern PFNGLFOGCOORDFEXTPROC glFogCoordfEXT;
+    extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
+    extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+    extern PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+    extern PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
+    extern PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
+    extern PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+    extern PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
+    extern PFNGLLINKPROGRAMARBPROC glLinkProgramARB;
+    extern PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2fARB;
+    extern PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
+    extern PFNGLSECONDARYCOLOR3FPROC glSecondaryColor3f;
+    extern PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+    extern PFNGLUNIFORM1FARBPROC glUniform1fARB;
+    extern PFNGLUNIFORM1IARBPROC glUniform1iARB;
+    extern PFNGLUNIFORM4FARBPROC glUniform4fARB;
+    extern PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
+#else
+    #define GL_GLEXT_PROTOTYPES
+    #include <SDL_opengl.h>
+#endif
+
 
 #include "../winlnxdefs.h"
+
 
 #ifdef VPDEBUG
 void dump_tex(int id);
@@ -250,7 +287,7 @@ void LOG(char *text, ...);
 #else // LOGGING
 #define OPEN_LOG()
 #define CLOSE_LOG()
-#define LOG(...)
+//#define LOG(...)
 #endif // LOGGING
 
 #endif

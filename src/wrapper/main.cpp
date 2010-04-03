@@ -21,13 +21,13 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <stdint.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
-#define GL_GLEXT_PROTOTYPES
-#include <SDL_opengl.h>
+#include <SDL.h>
 
 #include "glide.h"
 #include "main.h"
@@ -37,6 +37,82 @@
 
 #ifdef VPDEBUG
 #include <IL/il.h>
+#endif
+
+extern void FindBestDepthBias();
+extern int getEnableFBO();
+extern int getDisableAuxbuf();
+
+#ifdef WIN32
+PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
+PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
+PFNGLBINDFRAMEBUFFEREXTPROC glBindFramebufferEXT;
+PFNGLBINDRENDERBUFFEREXTPROC glBindRenderbufferEXT;
+PFNGLBLENDFUNCSEPARATEEXTPROC glBlendFuncSeparateEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+PFNGLCOMPILESHADERARBPROC glCompileShaderARB;
+PFNGLCREATEPROGRAMOBJECTARBPROC glCreateProgramObjectARB;
+PFNGLCREATESHADEROBJECTARBPROC glCreateShaderObjectARB;
+PFNGLDELETERENDERBUFFERSEXTPROC glDeleteRenderbuffersEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC glDeleteFramebuffersEXT;
+PFNGLFOGCOORDFEXTPROC glFogCoordfEXT;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC glFramebufferRenderbufferEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC glFramebufferTexture2DEXT;
+PFNGLGENFRAMEBUFFERSEXTPROC glGenFramebuffersEXT;
+PFNGLGENRENDERBUFFERSEXTPROC glGenRenderbuffersEXT;
+PFNGLGETINFOLOGARBPROC glGetInfoLogARB;
+PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+PFNGLGETUNIFORMLOCATIONARBPROC glGetUniformLocationARB;
+PFNGLLINKPROGRAMARBPROC glLinkProgramARB;
+PFNGLMULTITEXCOORD2FARBPROC glMultiTexCoord2fARB;
+PFNGLRENDERBUFFERSTORAGEEXTPROC glRenderbufferStorageEXT;
+PFNGLSECONDARYCOLOR3FPROC glSecondaryColor3f;
+PFNGLSHADERSOURCEARBPROC glShaderSourceARB;
+PFNGLUNIFORM1FARBPROC glUniform1fARB;
+PFNGLUNIFORM1IARBPROC glUniform1iARB;
+PFNGLUNIFORM4FARBPROC glUniform4fARB;
+PFNGLUSEPROGRAMOBJECTARBPROC glUseProgramObjectARB;
+
+static void APIENTRY EmptyFunc(void) { return; }
+
+#define INIT_ENTRY_POINT(type, funcname) \
+  funcname = (type) CoreVideo_GL_GetProcAddress(#funcname); \
+  if (funcname == NULL) { WriteLog(M64MSG_WARNING, \
+    "Couldn't get address of OpenGL function: '%s'", #funcname); funcname = (type) EmptyFunc; }
+
+static void InitGLPrototypes()
+{
+    INIT_ENTRY_POINT(PFNGLACTIVETEXTUREARBPROC, glActiveTextureARB);
+    INIT_ENTRY_POINT(PFNGLATTACHOBJECTARBPROC, glAttachObjectARB);
+    INIT_ENTRY_POINT(PFNGLBINDFRAMEBUFFEREXTPROC, glBindFramebufferEXT);
+    INIT_ENTRY_POINT(PFNGLBINDRENDERBUFFEREXTPROC, glBindRenderbufferEXT);
+    INIT_ENTRY_POINT(PFNGLBLENDFUNCSEPARATEEXTPROC, glBlendFuncSeparateEXT);
+    INIT_ENTRY_POINT(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
+    INIT_ENTRY_POINT(PFNGLCOMPILESHADERARBPROC, glCompileShaderARB);
+    INIT_ENTRY_POINT(PFNGLCREATEPROGRAMOBJECTARBPROC, glCreateProgramObjectARB);
+    INIT_ENTRY_POINT(PFNGLCREATESHADEROBJECTARBPROC, glCreateShaderObjectARB);
+    INIT_ENTRY_POINT(PFNGLDELETERENDERBUFFERSEXTPROC, glDeleteRenderbuffersEXT);
+    INIT_ENTRY_POINT(PFNGLDELETEFRAMEBUFFERSEXTPROC, glDeleteFramebuffersEXT);
+    INIT_ENTRY_POINT(PFNGLFOGCOORDFEXTPROC, glFogCoordfEXT);
+    INIT_ENTRY_POINT(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC, glFramebufferRenderbufferEXT);
+    INIT_ENTRY_POINT(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC, glFramebufferTexture2DEXT);
+    INIT_ENTRY_POINT(PFNGLGENFRAMEBUFFERSEXTPROC, glGenFramebuffersEXT);
+    INIT_ENTRY_POINT(PFNGLGENRENDERBUFFERSEXTPROC, glGenRenderbuffersEXT);
+    INIT_ENTRY_POINT(PFNGLGETINFOLOGARBPROC, glGetInfoLogARB);
+    INIT_ENTRY_POINT(PFNGLGETOBJECTPARAMETERIVARBPROC, glGetObjectParameterivARB);
+    INIT_ENTRY_POINT(PFNGLGETUNIFORMLOCATIONARBPROC, glGetUniformLocationARB);
+    INIT_ENTRY_POINT(PFNGLLINKPROGRAMARBPROC, glLinkProgramARB);
+    INIT_ENTRY_POINT(PFNGLMULTITEXCOORD2FARBPROC, glMultiTexCoord2fARB);
+    INIT_ENTRY_POINT(PFNGLRENDERBUFFERSTORAGEEXTPROC, glRenderbufferStorageEXT);
+    INIT_ENTRY_POINT(PFNGLSECONDARYCOLOR3FPROC, glSecondaryColor3f);
+    INIT_ENTRY_POINT(PFNGLSHADERSOURCEARBPROC, glShaderSourceARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM1FARBPROC, glUniform1fARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM1IARBPROC, glUniform1iARB);
+    INIT_ENTRY_POINT(PFNGLUNIFORM4FARBPROC, glUniform4fARB);
+    INIT_ENTRY_POINT(PFNGLUSEPROGRAMOBJECTARBPROC, glUseProgramObjectARB);
+}
+#else
+static void InitGLPrototypes() { return; }
 #endif
 
 int screen_width, screen_height;
@@ -68,7 +144,7 @@ static inline void opt_glCopyTexImage2D( GLenum target,
       }
       glCopyTexSubImage2D(target, level, 0, 0, x, y, width, height);
     } else {
-      printf("copyteximage %dx%d fmt %x old %dx%d oldfmt %x\n", width, height, internalFormat, w, h, fmt);
+      WriteLog(M64MSG_VERBOSE, "copyteximage %dx%d fmt %x old %dx%d oldfmt %x\n", width, height, internalFormat, w, h, fmt);
 //       glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, internalFormat, GL_UNSIGNED_BYTE, 0);
 //       glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INTERNAL_FORMAT, &fmt);
 //       printf("--> %dx%d newfmt %x\n", width, height, fmt);
@@ -146,7 +222,7 @@ void display_warning(const char *text, ...)
     static int first_message = 100;
     if (first_message)
     {
-        unsigned char buf[1000];
+        char buf[1000];
         
         va_list ap;
     
@@ -154,7 +230,7 @@ void display_warning(const char *text, ...)
         vsprintf((char*)buf, (char*)text, ap);
         va_end(ap);
 
-       printf("Glide3x warning : %s\n", buf);
+        WriteLog(M64MSG_WARNING, buf);
         first_message--;
     }
 }
@@ -192,7 +268,7 @@ void LOG(char *text, ...)
 FX_ENTRY void FX_CALL
 grSstOrigin(GrOriginLocation_t  origin)
 {
-    LOG("grSstOrigin(%d)\r\n", origin);
+    WriteLog(M64MSG_VERBOSE, "grSstOrigin(%d)\r\n", origin);
     if (origin != GR_ORIGIN_UPPER_LEFT)
         display_warning("grSstOrigin : %x", origin);
 }
@@ -200,7 +276,7 @@ grSstOrigin(GrOriginLocation_t  origin)
 FX_ENTRY void FX_CALL 
 grClipWindow( FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy )
 {
-    LOG("grClipWindow(%d,%d,%d,%d)\r\n", minx, miny, maxx, maxy);
+    WriteLog(M64MSG_VERBOSE, "grClipWindow(%d,%d,%d,%d)\r\n", minx, miny, maxx, maxy);
 
   if (use_fbo && render_to_texture) {
     glScissor(minx, miny, maxx - minx, maxy - miny);
@@ -230,7 +306,7 @@ grClipWindow( FxU32 minx, FxU32 miny, FxU32 maxx, FxU32 maxy )
 FX_ENTRY void FX_CALL
 grColorMask( FxBool rgb, FxBool a )
 {
-    LOG("grColorMask(%d, %d)\r\n", rgb, a);
+    WriteLog(M64MSG_VERBOSE, "grColorMask(%d, %d)\r\n", rgb, a);
     glColorMask(rgb, rgb, rgb, a);
 }
 
@@ -238,13 +314,13 @@ FX_ENTRY void FX_CALL
 grGlideInit( void )
 {
     OPEN_LOG();
-    LOG("grGlideInit()\r\n");
+    WriteLog(M64MSG_VERBOSE, "grGlideInit()\r\n");
 }
 
 FX_ENTRY void FX_CALL 
 grSstSelect( int which_sst )
 {
-    LOG("grSstSelect(%d)\r\n", which_sst);
+    WriteLog(M64MSG_VERBOSE, "grSstSelect(%d)\r\n", which_sst);
 }
 
 BOOL isExtensionSupported(const char *extension)
@@ -290,7 +366,7 @@ grSstWinOpenExt(
           int                  nColBuffers,
           int                  nAuxBuffers)
 {
-    LOG("grSstWinOpenExt(%d, %d, %d, %d, %d, %d %d)\r\n", hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
+    WriteLog(M64MSG_VERBOSE, "grSstWinOpenExt(%d, %d, %d, %d, %d, %d %d)\r\n", hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
     return grSstWinOpen(hWnd, screen_resolution, refresh_rate, color_format, 
                         origin_location, nColBuffers, nAuxBuffers);
 }
@@ -324,7 +400,7 @@ grSstWinOpen(
   color_texture = free_texture++;
   depth_texture = free_texture++;
   
-    LOG("grSstWinOpen(%d, %d, %d, %d, %d, %d %d)\r\n", hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
+    WriteLog(M64MSG_VERBOSE, "grSstWinOpen(%d, %d, %d, %d, %d, %d %d)\r\n", hWnd, screen_resolution, refresh_rate, color_format, origin_location, nColBuffers, nAuxBuffers);
 
     PackedScreenResolution packedResolution;
     packedResolution.resolution = screen_resolution;
@@ -341,18 +417,20 @@ grSstWinOpen(
         CoreVideo_GL_SetAttribute(M64P_GL_BUFFER_SIZE, 16) != M64ERR_SUCCESS ||
         CoreVideo_GL_SetAttribute(M64P_GL_DEPTH_SIZE, 16)  != M64ERR_SUCCESS)
     {
-        printf("Could not set video attributes.");
+        WriteLog(M64MSG_ERROR, "Could not set video attributes.");
         return 0;
     }
 
     if (CoreVideo_SetVideoMode(width, height, 0, screen_mode) != M64ERR_SUCCESS)
     {
-        printf("Could not set video mode.");
+        WriteLog(M64MSG_ERROR, "Could not set video mode.");
         return 0;
     }
 
     CoreVideo_SetCaption("Glide64");
     fullscreen = 0;
+
+    InitGLPrototypes();
 
    // ZIGGY viewport_offset is WIN32 specific, with SDL just set it to zero
     viewport_offset = 0; //-10 //-20;
@@ -380,11 +458,10 @@ grSstWinOpen(
     if (nbTextureUnits == 1) display_warning("You need a video card that has at least 2 texture units");
   
   nbAuxBuffers = 0;
-  int getDisableAuxbuf();
   if (!getDisableAuxbuf())
     glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &nbAuxBuffers);
   if (nbAuxBuffers > 0)
-    printf("Congratulations, you have %d auxiliary buffers, we'll use them wisely !\n", nbAuxBuffers);
+    WriteLog(M64MSG_INFO, "Congratulations, you have %d auxiliary buffers, we'll use them wisely !\n", nbAuxBuffers);
 
 #ifdef VOODOO1
     nbTextureUnits = 2;
@@ -398,14 +475,14 @@ grSstWinOpen(
     if (isExtensionSupported("GL_EXT_packed_pixels") == FALSE)
         packed_pixels_support = 0;
     else {
-      printf("packed pixels extension used\n");
+      WriteLog(M64MSG_INFO, "packed pixels extension used\n");
         packed_pixels_support = 1;
     }
 
     if (isExtensionSupported("GL_ARB_texture_non_power_of_two") == FALSE)
         npot_support = 0;
     else {
-      printf("NPOT extension used\n");
+      WriteLog(M64MSG_INFO, "NPOT extension used\n");
         npot_support = 1;
     }
 
@@ -414,10 +491,9 @@ grSstWinOpen(
     else
         fog_coord_support = 1;
 
-  int getEnableFBO();
   use_fbo = getEnableFBO();
 
-  printf("use_fbo %d\n", use_fbo);
+  WriteLog(M64MSG_INFO, "use_fbo %d\n", use_fbo);
 
     if (isExtensionSupported("GL_ARB_shading_language_100") &&
         isExtensionSupported("GL_ARB_shader_objects") &&
@@ -494,7 +570,6 @@ grSstWinOpen(
     save_w = save_h = 0;
   }
 
-  void FindBestDepthBias();
   FindBestDepthBias();
 
     init_geometry();
@@ -507,7 +582,7 @@ grSstWinOpen(
 FX_ENTRY void FX_CALL
 grGlideShutdown( void )
 {
-    LOG("grGlideShutdown\r\n");
+    WriteLog(M64MSG_VERBOSE, "grGlideShutdown\r\n");
     CLOSE_LOG();
 }
 
@@ -515,7 +590,7 @@ FX_ENTRY FxBool FX_CALL
 grSstWinClose( GrContext_t context )
 {
   int i, clear_texbuff = use_fbo;
-    LOG("grSstWinClose(%d)\r\n", context);
+    WriteLog(M64MSG_VERBOSE, "grSstWinClose(%d)\r\n", context);
 
 //   void remove_all_tex();
 //   remove_all_tex();
@@ -568,7 +643,7 @@ FX_ENTRY void FX_CALL grTextureBufferExt( GrChipID_t        tmu,
     static int fbs_init = 0;
   
     //printf("grTextureBufferExt(%d, %d, %d, %d, %d, %d, %d)\r\n", tmu, startAddress, lodmin, lodmax, aspect, fmt, evenOdd);
-    LOG("grTextureBufferExt(%d, %d, %d, %d %d, %d, %d)\r\n", tmu, startAddress, lodmin, lodmax, aspect, fmt, evenOdd);
+    WriteLog(M64MSG_VERBOSE, "grTextureBufferExt(%d, %d, %d, %d %d, %d, %d)\r\n", tmu, startAddress, lodmin, lodmax, aspect, fmt, evenOdd);
     if (lodmin != lodmax) display_warning("grTextureBufferExt : loading more than one LOD");
   if (!use_fbo) {
 
@@ -908,7 +983,7 @@ grTextureAuxBufferExt( GrChipID_t tmu,
                                         GrTextureFormat_t format,
                                         FxU32      odd_even_mask )
 {
-    LOG("grTextureAuxBufferExt(%d, %d, %d, %d %d, %d, %d)\r\n", tmu, startAddress, thisLOD, largeLOD, aspectRatio, format, odd_even_mask);
+    WriteLog(M64MSG_VERBOSE, "grTextureAuxBufferExt(%d, %d, %d, %d %d, %d, %d)\r\n", tmu, startAddress, thisLOD, largeLOD, aspectRatio, format, odd_even_mask);
     //display_warning("grTextureAuxBufferExt");
 }
 
@@ -917,7 +992,7 @@ FX_ENTRY void FX_CALL grAuxBufferExt( GrBuffer_t buffer );
 FX_ENTRY GrProc FX_CALL
 grGetProcAddress( const char *procName )
 {
-    LOG("grGetProcAddress(%s)\r\n", procName);
+    WriteLog(M64MSG_VERBOSE, "grGetProcAddress(%s)\r\n", procName);
     if(!strcmp(procName, "grSstWinOpenExt"))
         return (GrProc)grSstWinOpenExt;
     if(!strcmp(procName, "grTextureBufferExt"))
@@ -958,7 +1033,7 @@ grGetProcAddress( const char *procName )
 FX_ENTRY FxU32 FX_CALL 
 grGet( FxU32 pname, FxU32 plength, FxI32 *params )
 {
-    LOG("grGet(%d,%d)\r\n", pname, plength);
+    WriteLog(M64MSG_VERBOSE, "grGet(%d,%d)\r\n", pname, plength);
     switch(pname)
     {
     case GR_MAX_TEXTURE_SIZE:
@@ -1070,7 +1145,7 @@ grGet( FxU32 pname, FxU32 plength, FxI32 *params )
 FX_ENTRY const char * FX_CALL 
 grGetString( FxU32 pname )
 {
-    LOG("grGetString(%d)\r\n", pname);
+    WriteLog(M64MSG_VERBOSE, "grGetString(%d)\r\n", pname);
     switch(pname)
     {
     case GR_EXTENSION:
@@ -1176,8 +1251,7 @@ void reloadTexture()
   if (use_fbo || !render_to_texture || buffer_cleared)
     return;
 
-  LOG("reload texture %dx%d\n", width, height);
-  printf("reload texture %dx%d\n", width, height);
+  WriteLog(M64MSG_VERBOSE, "reload texture %dx%d\n", width, height);
   
   buffer_cleared = TRUE;
 
@@ -1204,12 +1278,12 @@ void reloadTexture()
 void updateTexture()
 {
   if (!use_fbo && render_to_texture == 2) {
-    LOG("update texture %x\n", pBufferAddress);
+    WriteLog(M64MSG_VERBOSE, "update texture %x\n", pBufferAddress);
     //printf("update texture %x\n", pBufferAddress);
 
     // nothing changed, don't update the texture
     if (!buffer_cleared) {
-      LOG("update cancelled\n", pBufferAddress);
+      WriteLog(M64MSG_VERBOSE, "update cancelled\n", pBufferAddress);
       return;
     }
     
@@ -1249,7 +1323,7 @@ FX_ENTRY void FX_CALL grFramebufferCopyExt(int x, int y, int w, int h,
     }
     
     if (from == GR_FBCOPY_BUFFER_BACK && to == GR_FBCOPY_BUFFER_FRONT) {
-      printf("save depth buffer %d\n", render_to_texture);
+      WriteLog(M64MSG_VERBOSE, "save depth buffer %d\n", render_to_texture);
       // save the depth image in a texture
       //glDisable(GL_ALPHA_TEST);
       glReadBuffer(current_buffer);
@@ -1260,7 +1334,7 @@ FX_ENTRY void FX_CALL grFramebufferCopyExt(int x, int y, int w, int h,
       return;
     }
     if (from == GR_FBCOPY_BUFFER_FRONT && to == GR_FBCOPY_BUFFER_BACK) {
-      printf("writing to depth buffer %d\n", render_to_texture);
+      WriteLog(M64MSG_VERBOSE, "writing to depth buffer %d\n", render_to_texture);
       
       glPushAttrib(GL_ALL_ATTRIB_BITS);
       glDisable(GL_ALPHA_TEST);
@@ -1288,7 +1362,7 @@ FX_ENTRY void FX_CALL grFramebufferCopyExt(int x, int y, int w, int h,
 FX_ENTRY void FX_CALL
 grRenderBuffer( GrBuffer_t buffer )
 {
-    LOG("grRenderBuffer(%d)\r\n", buffer);
+    WriteLog(M64MSG_VERBOSE, "grRenderBuffer(%d)\r\n", buffer);
     //printf("grRenderBuffer(%d)\n", buffer);
 
     switch(buffer)
@@ -1414,7 +1488,7 @@ grRenderBuffer( GrBuffer_t buffer )
 FX_ENTRY void FX_CALL
 grAuxBufferExt( GrBuffer_t buffer )
 {
-    LOG("grAuxBufferExt(%d)\r\n", buffer);
+    WriteLog(M64MSG_VERBOSE, "grAuxBufferExt(%d)\r\n", buffer);
     //display_warning("grAuxBufferExt");
 
   if (glsl_support && buffer == GR_BUFFER_AUXBUFFER) {
@@ -1441,7 +1515,7 @@ grAuxBufferExt( GrBuffer_t buffer )
 FX_ENTRY void FX_CALL
 grBufferClear( GrColor_t color, GrAlpha_t alpha, FxU32 depth )
 {
-    LOG("grBufferClear(%d,%d,%d)\r\n", color, alpha, depth);
+    WriteLog(M64MSG_VERBOSE, "grBufferClear(%d,%d,%d)\r\n", color, alpha, depth);
     switch(lfb_color_fmt)
     {
     case GR_COLORFORMAT_ARGB:
@@ -1481,7 +1555,7 @@ grBufferSwap( FxU32 swap_interval )
   if(renderCallback)
     (*renderCallback)();
   int i;
-    LOG("grBufferSwap(%d)\r\n", swap_interval);
+    WriteLog(M64MSG_VERBOSE, "grBufferSwap(%d)\r\n", swap_interval);
   //printf("swap\n");
   if (render_to_texture) {
     display_warning("swap while render_to_texture\n");
@@ -1525,7 +1599,7 @@ grLfbLock( GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode,
            GrOriginLocation_t origin, FxBool pixelPipeline, 
            GrLfbInfo_t *info )
 {
-    LOG("grLfbLock(%d,%d,%d,%d,%d)\r\n", type, buffer, writeMode, origin, pixelPipeline);
+    WriteLog(M64MSG_VERBOSE, "grLfbLock(%d,%d,%d,%d,%d)\r\n", type, buffer, writeMode, origin, pixelPipeline);
     if (type == GR_LFB_WRITE_ONLY)
     {
         display_warning("grLfbLock : write only");
@@ -1597,7 +1671,7 @@ grLfbLock( GrLock_t type, GrBuffer_t buffer, GrLfbWriteMode_t writeMode,
 FX_ENTRY FxBool FX_CALL
 grLfbUnlock( GrLock_t type, GrBuffer_t buffer )
 {
-    LOG("grLfbUnlock(%d,%d)\r\n", type, buffer);
+    WriteLog(M64MSG_VERBOSE, "grLfbUnlock(%d,%d)\r\n", type, buffer);
     if (type == GR_LFB_WRITE_ONLY)
     {
         display_warning("grLfbUnlock : write only");
@@ -1615,7 +1689,7 @@ grLfbReadRegion( GrBuffer_t src_buffer,
     unsigned int i,j;
     unsigned short *frameBuffer = (unsigned short*)dst_data;
     unsigned short *depthBuffer = (unsigned short*)dst_data;
-    LOG("grLfbReadRegion(%d,%d,%d,%d,%d,%d)\r\n", src_buffer, src_x, src_y, src_width, src_height, dst_stride);
+    WriteLog(M64MSG_VERBOSE, "grLfbReadRegion(%d,%d,%d,%d,%d,%d)\r\n", src_buffer, src_x, src_y, src_width, src_height, dst_stride);
 
     switch(src_buffer)
     {
@@ -1683,7 +1757,7 @@ grLfbWriteRegion( GrBuffer_t dst_buffer,
     unsigned short *frameBuffer = (unsigned short*)src_data;
     int texture_number;
     unsigned int tex_width = 1, tex_height = 1;
-    LOG("grLfbWriteRegion(%d,%d,%d,%d,%d,%d,%d,%d)\r\n",dst_buffer, dst_x, dst_y, src_format, src_width, src_height, pixelPipeline, src_stride);
+    WriteLog(M64MSG_VERBOSE, "grLfbWriteRegion(%d,%d,%d,%d,%d,%d,%d,%d)\r\n",dst_buffer, dst_x, dst_y, src_format, src_width, src_height, pixelPipeline, src_stride);
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
   

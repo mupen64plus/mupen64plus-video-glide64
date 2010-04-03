@@ -30,7 +30,7 @@ BOOL Config_Open()
     if (ConfigOpenSection("Video-General", &video_general_section) != M64ERR_SUCCESS ||
         ConfigOpenSection("Video-Glide64", &video_glide64_section) != M64ERR_SUCCESS)
     {
-        printf("Could not open configuration\n", M64MSG_ERROR);
+        WriteLog(M64MSG_ERROR, "Could not open configuration");
         return FALSE;
     }
     ConfigSetDefaultBool(video_general_section, "Fullscreen", false, "Use fullscreen mode if True, or windowed mode if False");
@@ -52,7 +52,7 @@ PackedScreenResolution Config_ReadScreenSettings()
 
 int Config_ReadInt(const char *itemname, int def_value, BOOL create)
 {
-    printf("Getting value %s\n", itemname);
+    WriteLog(M64MSG_VERBOSE, "Getting value %s", itemname);
     ConfigSetDefaultInt(video_glide64_section, itemname, def_value, itemname);
     return ConfigGetParamInt(video_glide64_section, itemname);
 }

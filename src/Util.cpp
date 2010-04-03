@@ -832,11 +832,11 @@ static void CalculateLOD(VERTEX **v, int n)
         lodFactor = lodFactor / n;
     }
     long ilod = (long)lodFactor;
-    int lod_tile = min((int)(log(ilod)/log(2)), rdp.cur_tile + rdp.mipmap_level);
+    int lod_tile = min((int)(log((double)ilod)/log(2.0)), rdp.cur_tile + rdp.mipmap_level);
     float lod_fraction = 1.0f;
     if (lod_tile < rdp.cur_tile + rdp.mipmap_level)
     {
-        lod_fraction = max((float)modf(lodFactor / pow(2,lod_tile),&intptr), rdp.prim_lodmin / 255.0f);
+        lod_fraction = max((float)modf(lodFactor / pow(2.0f,lod_tile),&intptr), rdp.prim_lodmin / 255.0f);
     }
     float detailmax;
     if (cmb.dc0_detailmax < 0.5f)

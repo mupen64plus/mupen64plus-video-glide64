@@ -20,7 +20,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 
-#define GL_GLEXT_PROTOTYPES
 #include <SDL_opengl.h>
 
 #include "glide.h"

@@ -202,7 +202,7 @@ static HIRES_COLOR_IMAGE * AllocateTextureBuffer(COLOR_IMAGE & cimage)
   }
   //not found. keep recently accessed bank, clear second one
   if (!rdp.texbufs[rdp.cur_tex_buf^1].clear_allowed) { //can't clear => can't allocate
-    printf("Can't allocate texture buffer\n");
+    WriteLog(M64MSG_WARNING, "Can't allocate texture buffer\n");
     return 0;
   }
   rdp.cur_tex_buf ^= 1;

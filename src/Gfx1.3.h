@@ -85,7 +85,9 @@ the plugin
 #include <fstream>
 
 #include <cstddef>      // offsetof
+#ifndef _WIN32
 #include <cmath>
+#endif
 #ifdef _WIN32
 #include <io.h>
 #include <direct.h>
@@ -231,7 +233,7 @@ extern __int64 perf_next;
 extern std::ofstream loga;
 #define LOG(x) loga.open("log.txt",ios::app); loga << x; loga.flush(); loga.close();
 #else
-#define LOG(x)
+#define LOG(x) WriteLog(M64MSG_VERBOSE, x);
 #endif
 
 
@@ -311,8 +313,8 @@ __inline void FRDP_E (const char *fmt, ...)
 
 #else
 #ifndef GCC
-#define FRDP(x)
-#define FRDP_E(x)
+#define FRDP(...)
+#define FRDP_E(...)
 #else // _WIN32
 inline void FRDP (const char *fmt, ...) {}
 inline void FRDP_E (const char *fmt, ...) {}
