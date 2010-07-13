@@ -59,6 +59,11 @@
 #define PATH_MAX _MAX_PATH
 #endif
 
+/* PATH_MAX only may be defined by limits.h */
+#ifndef PATH_MAX
+  #define PATH_MAX 4096
+#endif
+
 FILE *ini;
 int sectionstart;
 int last_line;      // last good line
