@@ -15,7 +15,7 @@
 *
 * You should have received a copy of the GNU General Public
 * Licence along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 * Boston, MA  02110-1301, USA
 */
 #include "Config.h"
@@ -36,6 +36,7 @@ BOOL Config_Open()
     ConfigSetDefaultBool(video_general_section, "Fullscreen", false, "Use fullscreen mode if True, or windowed mode if False");
     ConfigSetDefaultInt(video_general_section, "ScreenWidth", 640, "Width of output window or fullscreen width");
     ConfigSetDefaultInt(video_general_section, "ScreenHeight", 480, "Height of output window or fullscreen height");
+
     return TRUE;
 }
 
@@ -46,13 +47,22 @@ PackedScreenResolution Config_ReadScreenSettings()
     packedResolution.width = ConfigGetParamInt(video_general_section, "ScreenWidth");
     packedResolution.height = ConfigGetParamInt(video_general_section, "ScreenHeight");
     packedResolution.fullscreen = ConfigGetParamBool(video_general_section, "Fullscreen");
-    
+
     return packedResolution;
 }
 
-int Config_ReadInt(const char *itemname, int def_value, BOOL create)
+int Config_ReadInt(const char *itemname, const char *desc, int def_value, BOOL create, BOOL isBoolean)
 {
     WriteLog(M64MSG_VERBOSE, "Getting value %s", itemname);
-    ConfigSetDefaultInt(video_glide64_section, itemname, def_value, itemname);
-    return ConfigGetParamInt(video_glide64_section, itemname);
+    if (isBoolean)
+    {
+        ConfigSetDefaultBool(video_glide64_section, itemname, def_value, desc);
+        return ConfigGetParamBool(video_glide64_section, itemname);
+    }
+    else
+    {
+        ConfigSetDefaultInt(video_glide64_section, itemname, def_value, desc);
+        return ConfigGetParamInt(video_glide64_section, itemname);
+    }
+
 }

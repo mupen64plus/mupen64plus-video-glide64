@@ -14,7 +14,7 @@
 *
 *   You should have received a copy of the GNU General Public
 *   Licence along with this program; if not, write to the Free
-*   Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+*   Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 *   Boston, MA  02110-1301, USA
 */
 
@@ -126,7 +126,7 @@ BOOL sup_32bit_tex = FALSE;
 
 #ifdef ALTTAB_FIX
 HHOOK hhkLowLevelKybd = NULL;
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, 
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode,
                                       WPARAM wParam, LPARAM lParam);
 #endif
 
@@ -170,7 +170,7 @@ DWORD resolutions[0x18][2] = {
   { 1280, 1024 },
   { 1600, 1200 },
   { 400, 300 },
-  
+
   // 0x10
   { 1152, 864 },
   { 1280, 960 },
@@ -226,36 +226,36 @@ void ChangeSize ()
 {
   float res_scl_x = (float)settings.res_x / 320.0f;
   float res_scl_y = (float)settings.res_y / 240.0f;
-  
+
   DWORD scale_x = *gfx.VI_X_SCALE_REG & 0xFFF;
   if (!scale_x) return;
   DWORD scale_y = *gfx.VI_Y_SCALE_REG & 0xFFF;
   if (!scale_y) return;
-  
+
   float fscale_x = (float)scale_x / 1024.0f;
   float fscale_y = (float)scale_y / 1024.0f;
-  
+
   DWORD dwHStartReg = *gfx.VI_H_START_REG;
   DWORD dwVStartReg = *gfx.VI_V_START_REG;
-  
+
   DWORD hstart = dwHStartReg >> 16;
   DWORD hend = dwHStartReg & 0xFFFF;
-  
+
   // dunno... but sometimes this happens
   if (hend == hstart) hend = (int)(*gfx.VI_WIDTH_REG / fscale_x);
-  
+
   DWORD vstart = dwVStartReg >> 16;
   DWORD vend = dwVStartReg & 0xFFFF;
-  
+
   sprintf (out_buf, "hstart: %d, hend: %d, vstart: %d, vend: %d\n", hstart, hend, vstart, vend);
   LOG (out_buf);
-  
+
   rdp.vi_width = (hend - hstart) * fscale_x;
   rdp.vi_height = (vend - vstart)/2 * fscale_y;
-  
+
   sprintf (out_buf, "size: %d x %d\n", (int)rdp.vi_width, (int)rdp.vi_height);
   LOG (out_buf);
-  
+
   if (region == 0)
   {
     if (*gfx.VI_WIDTH_REG == 0x500) // 1280x960 is different... needs height * 2
@@ -288,22 +288,22 @@ void ChangeSize ()
       //rdp.scale_y = res_scl_y * (230.0f / rdp.vi_height);
     }
   }
-  
+
   rdp.offset_x = settings.offset_x * res_scl_x;
   rdp.offset_y = settings.offset_y * res_scl_y;
   if (settings.scale_x != 0)
     rdp.scale_x *= (settings.scale_x / 100000.0f);
   if (settings.scale_y != 0)
     rdp.scale_y *= (settings.scale_y / 100000.0f);
-  
+
   rdp.scale_1024 = settings.scr_res_x / 1024.0f;
   rdp.scale_768 = settings.scr_res_y / 768.0f;
-  
+
   rdp.scissor_o.ul_x = 0;
   rdp.scissor_o.ul_y = 0;
   rdp.scissor_o.lr_x = (DWORD)rdp.vi_width;
   rdp.scissor_o.lr_y = (DWORD)rdp.vi_height;
-  
+
   rdp.update |= UPDATE_VIEWPORT | UPDATE_SCISSOR;
 }
 
@@ -315,64 +315,64 @@ void ReadSettings ()
     WriteLog(M64MSG_ERROR, "Could not open configuration!");
     return;
   }
-  settings.card_id = (BYTE)Config_ReadInt ("card_id", 0);
-  
-  settings.depth_bias = -Config_ReadInt ("depth_bias", 0);
+  settings.card_id = (BYTE)Config_ReadInt ("card_id", "Card ID", 0, TRUE, FALSE);
+
+  settings.depth_bias = -Config_ReadInt ("depth_bias", "Depth bias level", 0, TRUE, FALSE);
   PackedScreenResolution packedResolution = Config_ReadScreenSettings();
   settings.res_data = (DWORD) packedResolution.resolution;
   settings.scr_res_x = settings.res_x = packedResolution.width;
   settings.scr_res_y = settings.res_y = packedResolution.height;
-  settings.autodetect_ucode = (BOOL)Config_ReadInt ("autodetect_ucode", 1);
-  settings.ucode = (DWORD)Config_ReadInt ("ucode", 2);
-  
-  settings.wireframe = (BOOL)Config_ReadInt ("wireframe", 0);
-  settings.wfmode = (int)Config_ReadInt ("wfmode", 1);
-  settings.filtering = (BYTE)Config_ReadInt ("filtering", 1);
-  settings.fog = (BOOL)Config_ReadInt ("fog", 1);
-  settings.buff_clear = (BOOL)Config_ReadInt ("buff_clear", 1);
-  settings.vsync = (BOOL)Config_ReadInt ("vsync", 0);
-  settings.fast_crc = (BOOL)Config_ReadInt ("fast_crc", 0);
-  settings.swapmode = (BYTE)Config_ReadInt ("swapmode", 1);
-  settings.lodmode = (BYTE)Config_ReadInt ("lodmode", 0);
-  
-  settings.logging = (BOOL)Config_ReadInt ("logging", 0);
-  settings.log_clear = (BOOL)Config_ReadInt ("log_clear", 0);
-  settings.elogging = (BOOL)Config_ReadInt ("elogging", 0);
-  settings.filter_cache = (BOOL)Config_ReadInt ("filter_cache", 0);
-  settings.cpu_write_hack = (BOOL)Config_ReadInt ("detect_cpu_write", 0);
-  settings.unk_as_red = (BOOL)Config_ReadInt ("unk_as_red", 0);
-  settings.log_unk = (BOOL)Config_ReadInt ("log_unk", 0);
-  settings.unk_clear = (BOOL)Config_ReadInt ("unk_clear", 0);
-  
-  settings.wrap_big_tex = (BOOL)Config_ReadInt ("wrap_big_tex", 0);
-  settings.flame_corona = (BOOL)Config_ReadInt ("flame_corona", 0);
+  settings.autodetect_ucode = (BOOL)Config_ReadInt ("autodetect_ucode", "Auto-detect microcode", 1);
+  settings.ucode = (DWORD)Config_ReadInt ("ucode", "Force microcode", 2, TRUE, FALSE);
+
+  settings.wireframe = (BOOL)Config_ReadInt ("wireframe", "Wireframe display", 0);
+  settings.wfmode = (int)Config_ReadInt ("wfmode", "Wireframe mode", 1, TRUE, FALSE);
+  settings.filtering = (BYTE)Config_ReadInt ("filtering", "Texture filter", 1, TRUE, FALSE);
+  settings.fog = (BOOL)Config_ReadInt ("fog", "Fog enabled", 1);
+  settings.buff_clear = (BOOL)Config_ReadInt ("buff_clear", "Buffer clear on every frame", 1);
+  settings.vsync = (BOOL)Config_ReadInt ("vsync", "Vertical sync", 0);
+  settings.fast_crc = (BOOL)Config_ReadInt ("fast_crc", "Fast CRC", 0);
+  settings.swapmode = (BYTE)Config_ReadInt ("swapmode", "Swap mode", 1, TRUE, FALSE);
+  settings.lodmode = (BYTE)Config_ReadInt ("lodmode", "LOD mode", 0, TRUE, FALSE);
+
+  settings.logging = (BOOL)Config_ReadInt ("logging", "Logging", 0);
+  settings.log_clear = (BOOL)Config_ReadInt ("log_clear", "", 0);
+  settings.elogging = (BOOL)Config_ReadInt ("elogging", "", 0);
+  settings.filter_cache = (BOOL)Config_ReadInt ("filter_cache", "Filter cache", 0);
+  settings.cpu_write_hack = (BOOL)Config_ReadInt ("detect_cpu_write", "Detect CPU writes", 0);
+  settings.unk_as_red = (BOOL)Config_ReadInt ("unk_as_red", "Display unknown combines as red", 0);
+  settings.log_unk = (BOOL)Config_ReadInt ("log_unk", "Log unknown combines", 0);
+  settings.unk_clear = (BOOL)Config_ReadInt ("unk_clear", "", 0);
+
+  settings.wrap_big_tex = (BOOL)Config_ReadInt ("wrap_big_tex", "Wrap textures too big for tmem", 0);
+  settings.flame_corona = (BOOL)Config_ReadInt ("flame_corona", "Zelda corona fix", 0);
   //  settings.RE2_native_video = (BOOL)INI_ReadInt ("RE2_native_video", 0);
-  
-  settings.show_fps = (BYTE)Config_ReadInt ("show_fps", 9);
-  
-  settings.clock = (BOOL)Config_ReadInt ("clock", 0);
-  settings.clock_24_hr = (BOOL)Config_ReadInt ("clock_24_hr", 0);
-  
-  settings.fb_read_always = (BOOL)Config_ReadInt ("fb_read_always", 0);
-  settings.fb_read_alpha = (BOOL)Config_ReadInt ("fb_read_alpha", 0);
-  settings.fb_smart = (BOOL)Config_ReadInt ("fb_smart", 0);
-  settings.fb_motionblur = (BOOL)Config_ReadInt ("motionblur", 0);
-  settings.fb_hires = (BOOL)Config_ReadInt ("fb_hires", 1);
-  settings.fb_get_info = (BOOL)Config_ReadInt ("fb_get_info", 0);
-  settings.fb_depth_clear = (BOOL)Config_ReadInt ("fb_clear", 0);
-  settings.fb_depth_render = (BOOL)Config_ReadInt ("fb_render", 0);
+
+  settings.show_fps = (BYTE)Config_ReadInt ("show_fps", "FPS counter", 0, TRUE, FALSE);
+
+  settings.clock = (BOOL)Config_ReadInt ("clock", "Clock enabled", 0);
+  settings.clock_24_hr = (BOOL)Config_ReadInt ("clock_24_hr", "Clock is 24-hour", 0);
+
+  settings.fb_read_always = (BOOL)Config_ReadInt ("fb_read_always", "Framebuffer read every frame", 0);
+  settings.fb_read_alpha = (BOOL)Config_ReadInt ("fb_read_alpha", "Framebuffer read alpha", 0);
+  settings.fb_smart = (BOOL)Config_ReadInt ("fb_smart", "Smart framebuffer", 0);
+  settings.fb_motionblur = (BOOL)Config_ReadInt ("motionblur", "Motion blur", 0);
+  settings.fb_hires = (BOOL)Config_ReadInt ("fb_hires", "Hi-res framebuffer", 1);
+  settings.fb_get_info = (BOOL)Config_ReadInt ("fb_get_info", "Get framebuffer info", 0);
+  settings.fb_depth_clear = (BOOL)Config_ReadInt ("fb_clear", "Clear framebuffer", 0);
+  settings.fb_depth_render = (BOOL)Config_ReadInt ("fb_render", "Depth buffer render", 0);
   if (settings.fb_depth_render)
     settings.fb_depth_clear = TRUE;
-  
-  settings.custom_ini = (BOOL)Config_ReadInt ("custom_ini", 1);
-  settings.hotkeys = (BOOL)Config_ReadInt ("hotkeys", 1);
 
-  settings.full_res = (BOOL)Config_ReadInt ("full_res", 7);
-  settings.tex_filter = (BOOL)Config_ReadInt ("tex_filter", 0);
-  settings.noditheredalpha = (BOOL)Config_ReadInt ("noditheredalpha", 1);
-  settings.noglsl = (BOOL)Config_ReadInt ("noglsl", 1);
-  settings.FBO = (BOOL)Config_ReadInt ("fbo", 0);
-  settings.disable_auxbuf = (BOOL)Config_ReadInt ("disable_auxbuf", 0);
+  settings.custom_ini = (BOOL)Config_ReadInt ("custom_ini", "Use custom INI settings", 0);
+  settings.hotkeys = 0;
+
+  settings.full_res = 0;
+  settings.tex_filter = (BOOL)Config_ReadInt ("tex_filter", "Texture filtering", 0);
+  settings.noditheredalpha = (BOOL)Config_ReadInt ("noditheredalpha", "Disable dithered alpha", 1);
+  settings.noglsl = (BOOL)Config_ReadInt ("noglsl", "Disable GLSL combiners", 1);
+  settings.FBO = (BOOL)Config_ReadInt ("fbo", "Use framebuffer objects", 0);
+  settings.disable_auxbuf = (BOOL)Config_ReadInt ("disable_auxbuf", "Disable aux buffer", 0);
 
 }
 
@@ -483,7 +483,7 @@ void ReadSpecialSettings (const char name[21])
   int force_microcheck = INI_ReadInt ("force_microcheck", -1, 0);
   int info_disable = INI_ReadInt ("fb_info_disable", -1, 0);
   int hires_disable = INI_ReadInt ("fb_hires_disable", -1, 0);
-  
+
   if (offset_x != -1) settings.offset_x = offset_x;
   if (offset_y != -1) settings.offset_y = offset_y;
   if (scale_x != -1) settings.scale_x = scale_x;
@@ -530,7 +530,7 @@ void ReadSpecialSettings (const char name[21])
     //FIXME unused int depth_render = INI_ReadInt ("fb_render", -1, 0);
     //int resolution = (INT)INI_ReadInt ("resolution", -1, 0);
     int cpu_write_hack = (INT)INI_ReadInt ("detect_cpu_write", -1, 0);
-    
+
     if (filtering != -1) settings.filtering = filtering;
     if (fog != -1) settings.fog = fog;
     if (buff_clear != -1) settings.buff_clear = buff_clear;
@@ -574,28 +574,28 @@ void guLoadTextures ()
   if (grTextureBufferExt)
   {
     int tbuf_size = 0;
-    if (max_tex_size <= 256) 
+    if (max_tex_size <= 256)
     {
-      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_256, GR_LOD_LOG2_256, 
-                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH ); 
-      tbuf_size = 8 * grTexCalcMemRequired(GR_LOD_LOG2_256, GR_LOD_LOG2_256, 
+      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_256, GR_LOD_LOG2_256,
+                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH );
+      tbuf_size = 8 * grTexCalcMemRequired(GR_LOD_LOG2_256, GR_LOD_LOG2_256,
                                          GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565);
     }
     else if (settings.scr_res_x <= 1024)
     {
-      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_1024, GR_LOD_LOG2_1024, 
-                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH ); 
-      tbuf_size = grTexCalcMemRequired(GR_LOD_LOG2_1024, GR_LOD_LOG2_1024, 
+      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_1024, GR_LOD_LOG2_1024,
+                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH );
+      tbuf_size = grTexCalcMemRequired(GR_LOD_LOG2_1024, GR_LOD_LOG2_1024,
                                          GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565);
     }
     else
     {
-      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_2048, GR_LOD_LOG2_2048, 
-                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH ); 
-      tbuf_size = grTexCalcMemRequired(GR_LOD_LOG2_2048, GR_LOD_LOG2_2048, 
+      grTextureBufferExt(  GR_TMU1, grTexMinAddress(GR_TMU1), GR_LOD_LOG2_2048, GR_LOD_LOG2_2048,
+                    GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565, GR_MIPMAPLEVELMASK_BOTH );
+      tbuf_size = grTexCalcMemRequired(GR_LOD_LOG2_2048, GR_LOD_LOG2_2048,
                                          GR_ASPECT_LOG2_1x1, GR_TEXFMT_RGB_565);
     }
-    
+
     //tbuf_size *= 2;
     WriteLog(M64MSG_INFO, "tbuf_size %gMb\n", tbuf_size/1024.0f/1024);
     rdp.texbufs[0].tmu = GR_TMU0;
@@ -619,15 +619,15 @@ void guLoadTextures ()
 
    DWORD *data = (DWORD*)font;
    DWORD cur;
-  
+
   // ** Font texture **
   BYTE *tex8 = (BYTE*)malloc(256*64);
-  
+
   fontTex.smallLodLog2 = fontTex.largeLodLog2 = GR_LOD_LOG2_256;
   fontTex.aspectRatioLog2 = GR_ASPECT_LOG2_4x1;
   fontTex.format = GR_TEXFMT_ALPHA_8;
   fontTex.data = tex8;
-  
+
   // Decompression: [1-bit inverse alpha --> 8-bit alpha]
   DWORD i,b;
   for (i=0; i<0x200; i++)
@@ -649,7 +649,7 @@ void guLoadTextures ()
            : "[cur]"(~*(data++))
            );
 #endif
-    
+
     for (b=0x80000000; b!=0; b>>=1)
     {
       if (cur&b) *tex8 = 0xFF;
@@ -657,26 +657,26 @@ void guLoadTextures ()
       tex8 ++;
     }
   }
-  
+
   grTexDownloadMipMap (GR_TMU0,
     grTexMinAddress(GR_TMU0) + offset_font,
     GR_MIPMAPLEVELMASK_BOTH,
     &fontTex);
-  
+
   offset_cursor = offset_font + grTexTextureMemRequired (GR_MIPMAPLEVELMASK_BOTH, &fontTex);
-  
+
   free (fontTex.data);
-  
+
   // ** Cursor texture **
   data = (DWORD*)cursor;
-  
+
   WORD *tex16 = (WORD*)malloc(32*32*2);
-  
+
   cursorTex.smallLodLog2 = cursorTex.largeLodLog2 = GR_LOD_LOG2_32;
   cursorTex.aspectRatioLog2 = GR_ASPECT_LOG2_1x1;
   cursorTex.format = GR_TEXFMT_ARGB_1555;
   cursorTex.data = tex16;
-  
+
   // Conversion: [16-bit 1555 (swapped) --> 16-bit 1555]
   for (i=0; i<0x200; i++)
   {
@@ -684,12 +684,12 @@ void guLoadTextures ()
     *(tex16++) = (WORD)(((cur&0x000000FF)<<8)|((cur&0x0000FF00)>>8));
     *(tex16++) = (WORD)(((cur&0x00FF0000)>>8)|((cur&0xFF000000)>>24));
   }
-  
+
   grTexDownloadMipMap (GR_TMU0,
     grTexMinAddress(GR_TMU0) + offset_cursor,
     GR_MIPMAPLEVELMASK_BOTH,
     &cursorTex);
-  
+
   // Round to higher 16
     offset_textures = ((offset_cursor + grTexTextureMemRequired (GR_MIPMAPLEVELMASK_BOTH, &cursorTex))
       & 0xFFFFFFF0) + 16;
@@ -703,19 +703,19 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   {
     ReleaseGfx ();
   }
-  
+
   OPEN_RDP_LOG ();  // doesn't matter if opens again; it will check for it
   OPEN_RDP_E_LOG ();
   LOG ("InitGfx ()\n");
-  
+
   debugging = FALSE;
-  
+
   // Initialize Glide
   grGlideInit ();
-  
+
   // Select the Glide device
   grSstSelect (settings.card_id);
-  
+
   gfx_context = 0;
   // Select the window
 
@@ -749,17 +749,17 @@ BOOL InitGfx (BOOL evoodoo_using_window)
     grGlideShutdown ();
     return FALSE;
   }
-  
+
   // get the # of TMUs available
   grGet (GR_NUM_TMU, 4, (FxI32 *) &num_tmu);
   WriteLog(M64MSG_INFO, "num_tmu %d\n", num_tmu);
   // get maximal texture size
   grGet (GR_MAX_TEXTURE_SIZE, 4, (FxI32 *) &max_tex_size);
   //num_tmu = 1;
-  
+
   // Is mirroring allowed?
   const char *extensions = grGetString (GR_EXTENSION);
-  
+
   if (strstr (extensions, "TEXMIRROR"))
     sup_mirroring = 1;
   else
@@ -769,20 +769,20 @@ BOOL InitGfx (BOOL evoodoo_using_window)
     sup_32bit_tex = TRUE;
   else
     sup_32bit_tex = FALSE;
-  
+
   if (settings.fb_hires)
   {
     const char * extstr = strstr(extensions, "TEXTUREBUFFER");
     if (extstr)
     {
-      if (!strncmp(extstr, "TEXTUREBUFFER", 13)) 
+      if (!strncmp(extstr, "TEXTUREBUFFER", 13))
       {
         grTextureBufferExt = (GRTEXBUFFEREXT) grGetProcAddress("grTextureBufferExt");
         grTextureAuxBufferExt = (GRTEXBUFFEREXT) grGetProcAddress("grTextureAuxBufferExt");
         grAuxBufferExt = (GRAUXBUFFEREXT) grGetProcAddress("grAuxBufferExt");
       }
     }
-    else 
+    else
       settings.fb_hires = 0;
   }
   else
@@ -790,7 +790,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
 
   grFramebufferCopyExt = (GRFRAMEBUFFERCOPYEXT) grGetProcAddress("grFramebufferCopyExt");
   grStippleModeExt = (GRSTIPPLE) grStippleMode;
-  grStipplePatternExt = (GRSTIPPLE) grStipplePattern; 
+  grStipplePatternExt = (GRSTIPPLE) grStipplePattern;
   if (grStipplePatternExt)
     grStipplePatternExt(settings.stipple_pattern);
 
@@ -800,14 +800,14 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   num_tmu = 1;
   sup_mirroring = 0;
 #endif
-  
+
 #ifdef SIMULATE_BANSHEE
   num_tmu = 1;
   sup_mirroring = 1;
 #endif
-  
+
   fullscreen = TRUE;
-  
+
   if (evoodoo_using_window)
     ev_fullscreen = FALSE;
   else
@@ -820,16 +820,16 @@ BOOL InitGfx (BOOL evoodoo_using_window)
   grVertexLayout (GR_PARAM_ST0, offsetof(VERTEX,coord[0]), GR_PARAM_ENABLE);
   grVertexLayout (GR_PARAM_ST1, offsetof(VERTEX,coord[2]), GR_PARAM_ENABLE);
   grVertexLayout (GR_PARAM_PARGB, offsetof(VERTEX,b), GR_PARAM_ENABLE);
-  
+
   grCullMode(GR_CULL_NEGATIVE);
-  
-  if (settings.fog) //"FOGCOORD" extension 
+
+  if (settings.fog) //"FOGCOORD" extension
   {
     if (strstr (extensions, "FOGCOORD"))
     {
       GrFog_t fog_t[64];
       guFogGenerateLinear (fog_t, 0.0f, 255.0f);//(float)rdp.fog_multiplier + (float)rdp.fog_offset);//256.0f);
-      
+
       for (int i = 63; i > 0; i--)
       {
         if (fog_t[i] - fog_t[i-1] > 63)
@@ -848,24 +848,24 @@ BOOL InitGfx (BOOL evoodoo_using_window)
     else //not supported
       settings.fog = FALSE;
   }
-  
+
   //grDepthBufferMode (GR_DEPTHBUFFER_WBUFFER);
   grDepthBufferMode (GR_DEPTHBUFFER_ZBUFFER);
   grDepthBufferFunction(GR_CMP_LESS);
   grDepthMask(FXTRUE);
-  
+
   settings.res_x = settings.scr_res_x;
   settings.res_y = settings.scr_res_y;
   ChangeSize ();
-  
+
   guLoadTextures ();
   grRenderBuffer(GR_BUFFER_BACKBUFFER);
-  
+
   rdp_reset ();
   ClearCache ();
-  
+
   rdp.update |= UPDATE_SCISSOR;
-  
+
   return TRUE;
 }
 
@@ -873,10 +873,10 @@ void ReleaseGfx ()
 {
   // Release graphics
   grSstWinClose (gfx_context);
-  
+
   // Shutdown glide
   grGlideShutdown();
-  
+
   fullscreen = FALSE;
   rdp.window_changed = TRUE;
 }
@@ -906,7 +906,7 @@ EXPORT void CALL ReadScreen2(void *dest, int *width, int *height, int front)
       WriteLog(M64MSG_WARNING, "[Glide64] Cannot save screenshot in windowed mode?\n");
       return;
     }
-    
+
     GrLfbInfo_t info;
     info.size = sizeof(GrLfbInfo_t);
     if (grLfbLock(GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER, GR_LFBWRITEMODE_888, GR_ORIGIN_UPPER_LEFT, FXFALSE, &info))
@@ -924,7 +924,7 @@ EXPORT void CALL ReadScreen2(void *dest, int *width, int *height, int front)
         }
         line += settings.res_x * 3;
       }
-      
+
       // Unlock the frontbuffer
       grLfbUnlock (GR_LFB_READ_ONLY, GR_BUFFER_FRONTBUFFER);
     }
@@ -1012,7 +1012,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
 
     if (APIVersion != NULL)
         *APIVersion = PLUGIN_API_VERSION;
-    
+
     if (PluginNamePtr != NULL)
         *PluginNamePtr = "Glide64";
 
@@ -1020,7 +1020,7 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
     {
         *Capabilities = 0;
     }
-                    
+
     return M64ERR_SUCCESS;
 }
 
@@ -1029,7 +1029,7 @@ Function: CaptureScreen
 Purpose:  This function dumps the current frame to a file
 input:    pointer to the directory to save the file to
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL CaptureScreen ( char * Directory )
 {
   capture_screen = 1;
@@ -1038,12 +1038,12 @@ EXPORT void CALL CaptureScreen ( char * Directory )
 
 /******************************************************************
 Function: ChangeWindow
-Purpose:  to change the window between fullscreen and window 
-mode. If the window was in fullscreen this should 
+Purpose:  to change the window between fullscreen and window
+mode. If the window was in fullscreen this should
 change the screen to window mode and vice vesa.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL ChangeWindow (void)
 {
   LOG ("ChangeWindow()\n");
@@ -1054,7 +1054,7 @@ EXPORT void CALL ChangeWindow (void)
     if (!ev_fullscreen)
     {
       to_fullscreen = TRUE;
-      GRWRAPPERFULLSCREENRESOLUTIONEXT grWrapperFullScreenResolutionExt = 
+      GRWRAPPERFULLSCREENRESOLUTIONEXT grWrapperFullScreenResolutionExt =
          (GRWRAPPERFULLSCREENRESOLUTIONEXT)grGetProcAddress("grWrapperFullScreenResolutionExt");
       if (grWrapperFullScreenResolutionExt != NULL)
       {
@@ -1067,7 +1067,7 @@ EXPORT void CALL ChangeWindow (void)
     else
     {
       ReleaseGfx ();
-      GRWRAPPERFULLSCREENRESOLUTIONEXT grWrapperFullScreenResolutionExt = 
+      GRWRAPPERFULLSCREENRESOLUTIONEXT grWrapperFullScreenResolutionExt =
          (GRWRAPPERFULLSCREENRESOLUTIONEXT)grGetProcAddress("grWrapperFullScreenResolutionExt");
       if (grWrapperFullScreenResolutionExt != NULL)
       {
@@ -1101,16 +1101,16 @@ Purpose:  This function is called when the emulator is closing
 down allowing the dll to de-initialise.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL CloseDLL (void)
 {
   LOG ("CloseDLL ()\n");
-  
+
   // re-set the old window proc
 #ifdef WINPROC_OVERRIDE
   SetWindowLong (gfx.hWnd, GWL_WNDPROC, (long)oldWndProc);
 #endif
-  
+
 #ifdef ALTTAB_FIX
   if (hhkLowLevelKybd)
   {
@@ -1118,9 +1118,9 @@ EXPORT void CALL CloseDLL (void)
     hhkLowLevelKybd = 0;
   }
 #endif
-  
+
   //CLOSELOG ();
-  
+
   if (fullscreen)
     ReleaseGfx ();
   ZLUT_release();
@@ -1134,11 +1134,11 @@ Purpose:  This function is optional function that is provided
 to give further information about the DLL.
 input:    a handle to the window that calls this function
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL DllAbout ( HWND hParent )
 {
    messagebox("Glide64 v"G64_VERSION, MB_OK,
-          "Glide64 "G64_VERSION"\nRelease: " RELTIME "\n" 
+          "Glide64 "G64_VERSION"\nRelease: " RELTIME "\n"
           "by GuentherB, Richard42, Gonetz, Dave2001, Gugaman, and others\n\n"
           "Beta testers: Raziel64, Federelli, Flash\n\n"
           "Special thanks to:\n"
@@ -1158,7 +1158,7 @@ Purpose:  This function is optional function that is provided
 to allow the user to test the dll
 input:    a handle to the window that calls this function
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL DllTest ( HWND hParent )
 {
 }
@@ -1170,7 +1170,7 @@ WM_PAINT message. This allows the gfx to fit in when
 it is being used in the desktop.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL DrawScreen (void)
 {
   LOG ("DrawScreen ()\n");
@@ -1183,13 +1183,13 @@ about the dll by filling in the PluginInfo structure.
 input:    a pointer to a PLUGIN_INFO stucture that needs to be
 filled by the function. (see def above)
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL GetDllInfo ( PLUGIN_INFO * PluginInfo )
 {
   PluginInfo->Version = 0x0103;     // Set to 0x0103
   PluginInfo->Type  = PLUGIN_TYPE_GFX;  // Set to PLUGIN_TYPE_GFX
   sprintf (PluginInfo->Name, "Glide64 "G64_VERSION);  // Name of the DLL
-  
+
   // If DLL supports memory these memory options then set them to TRUE or FALSE
   //  if it does not support it
   PluginInfo->NormalMemory = TRUE;  // a normal BYTE array
@@ -1201,7 +1201,7 @@ EXPORT void CALL GetDllInfo ( PLUGIN_INFO * PluginInfo )
 BOOL WINAPI QueryPerformanceCounter(PLARGE_INTEGER counter)
 {
    struct timeval tv;
-   
+
    /* generic routine */
    gettimeofday( &tv, NULL );
    counter->QuadPart = (LONGLONG)tv.tv_usec + (LONGLONG)tv.tv_sec * 1000000;
@@ -1230,42 +1230,42 @@ FALSE on failure to initialise
   To generate an interrupt set the appropriate bit in MI_INTR_REG
   and then call the function CheckInterrupts to tell the emulator
   that there is a waiting interrupt.
-*******************************************************************/ 
+*******************************************************************/
 
 EXPORT BOOL CALL InitiateGFX (GFX_INFO Gfx_Info)
 {
   LOG ("InitiateGFX (*)\n");
   // Do *NOT* put this in rdp_reset or it could be set after the screen is initialized
   num_tmu = 2;
-  
+
   // Assume scale of 1 for debug purposes
   rdp.scale_x = 1.0f;
   rdp.scale_y = 1.0f;
-  
+
   memset (&settings, 0, sizeof(SETTINGS));
   ReadSettings ();
-  
+
 #ifdef FPS
   QueryPerformanceFrequency (&perf_freq);
   QueryPerformanceCounter (&fps_last);
 #endif
-  
+
   debug_init ();    // Initialize debugger
-  
+
   gfx = Gfx_Info;
-  /*  
+  /*
   char name[21];
   // get the name of the ROM
   for (int i=0; i<20; i++)
     name[i] = gfx.HEADER[(32+i)^3];
   name[20] = 0;
-  
+
   // remove all trailing spaces
   while (name[strlen(name)-1] == ' ')
     name[strlen(name)-1] = 0;
-  
+
   ReadSpecialSettings (name);
-  */  
+  */
 #ifdef WINPROC_OVERRIDE
   if (!oldWndProc)
   {
@@ -1273,7 +1273,7 @@ EXPORT BOOL CALL InitiateGFX (GFX_INFO Gfx_Info)
     oldWndProc = (WNDPROC)SetWindowLong (gfx.hWnd, GWL_WNDPROC, (long)myWndProc);
   }
 #endif
-  
+
   util_init ();
   math_init ();
   TexCacheInit ();
@@ -1281,7 +1281,7 @@ EXPORT BOOL CALL InitiateGFX (GFX_INFO Gfx_Info)
   CountCombine();
   if (settings.fb_depth_render)
     ZLUT_init();
-  
+
   return TRUE;
 }
 
@@ -1293,9 +1293,9 @@ from that message.
 input:    xpos - the x-coordinate of the upper-left corner of the
 client area of the window.
 ypos - y-coordinate of the upper-left corner of the
-client area of the window. 
+client area of the window.
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL MoveScreen (int xpos, int ypos)
 {
   LOG ("MoveScreen");
@@ -1333,11 +1333,11 @@ Function: RomClosed
 Purpose:  This function is called when a rom is closed.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL RomClosed (void)
 {
   LOG ("RomClosed ()\n");
-  
+
   CLOSE_RDP_LOG ();
   CLOSE_RDP_E_LOG ();
   rdp.window_changed = TRUE;
@@ -1350,51 +1350,51 @@ BOOL no_dlist = TRUE;
 
 /******************************************************************
 Function: RomOpen
-Purpose:  This function is called when a rom is open. (from the 
+Purpose:  This function is called when a rom is open. (from the
 emulation thread)
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT int CALL RomOpen (void)
 {
   LOG ("RomOpen ()\n");
   no_dlist = TRUE;
   romopen = TRUE;
   ucode_error_report = TRUE;    // allowed to report ucode errors
-  
+
   // Get the country code & translate to NTSC(0) or PAL(1)
   WORD code = ((WORD*)gfx.HEADER)[0x1F^1];
-  
+
   if (code == 0x4400) region = 1; // Germany (PAL)
   if (code == 0x4500) region = 0; // USA (NTSC)
   if (code == 0x4A00) region = 0; // Japan (NTSC)
   if (code == 0x5000) region = 1; // Europe (PAL)
   if (code == 0x5500) region = 0; // Australia (NTSC)
-  
+
   char name[21] = "DEFAULT";
   ReadSpecialSettings (name);
-  
+
   // get the name of the ROM
   for (int i=0; i<20; i++)
     name[i] = gfx.HEADER[(32+i)^3];
   name[20] = 0;
-  
+
   // remove all trailing spaces
   while (name[strlen(name)-1] == ' ')
     name[strlen(name)-1] = 0;
-  
+
   ReadSpecialSettings (name);
 
 
   WriteLog(M64MSG_INFO, "fb_clear %d fb_smart %d\n", settings.fb_depth_clear, settings.fb_smart);
 
-  
+
   rdp_reset ();
   ClearCache ();
 
   OPEN_RDP_LOG ();
   OPEN_RDP_E_LOG ();
-  
+
   // ** EVOODOO EXTENSIONS **
   if (!fullscreen)
   {
@@ -1406,16 +1406,16 @@ EXPORT int CALL RomOpen (void)
   if (!fullscreen)
   {
     grGlideShutdown ();
-    
+
     if (strstr (extensions, "EVOODOO"))
       evoodoo = 1;
     else
       evoodoo = 0;
-    
+
     if (evoodoo)
       InitGfx (TRUE);
   }
-  
+
   if (strstr (extensions, "ROMNAME"))
   {
     void (__stdcall *grSetRomName)(char*);
@@ -1433,7 +1433,7 @@ ignored. This function tells the dll to start displaying
 them again.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL ShowCFB (void)
 {
   no_dlist = TRUE;
@@ -1452,7 +1452,7 @@ screen were the VI bit in MI_INTR_REG has already been
 set
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 DWORD update_screen_count = 0;
 EXPORT void CALL UpdateScreen (void)
 {
@@ -1466,14 +1466,14 @@ EXPORT void CALL UpdateScreen (void)
   sprintf (out_buf, "UpdateScreen (). distance: %d\n", (int)(*gfx.VI_ORIGIN_REG) - (int)((*gfx.VI_WIDTH_REG) << 2));
   LOG (out_buf);
   //  LOG ("UpdateScreen ()\n");
-  
+
   DWORD width = (*gfx.VI_WIDTH_REG) << 1;
   if (fullscreen && (*gfx.VI_ORIGIN_REG  > width))
     update_screen_count++;
-  
+
   // vertical interrupt has occured, increment counter
   vi_count ++;
-  
+
 #ifdef FPS
   // Check frames per second
   LARGE_INTEGER difference;
@@ -1491,9 +1491,9 @@ EXPORT void CALL UpdateScreen (void)
     vi_count = 0;
   }
 #endif
-  //*  
+  //*
   DWORD limit = settings.lego ? 15 : 50;
-  if (settings.cpu_write_hack && (update_screen_count > limit) && (rdp.last_bg == 0)) 
+  if (settings.cpu_write_hack && (update_screen_count > limit) && (rdp.last_bg == 0))
   {
     RDP("DirectCPUWrite hack!\n");
     update_screen_count = 0;
@@ -1517,7 +1517,7 @@ EXPORT void CALL UpdateScreen (void)
     }
     return;
   }
-  //*/  
+  //*/
   if (settings.swapmode == 0)
   {
     newSwapBuffers ();
@@ -1530,7 +1530,7 @@ Purpose:  This function is called to notify the dll that the
 ViStatus registers value has been changed.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL ViStatusChanged (void)
 {
 }
@@ -1541,7 +1541,7 @@ Purpose:  This function is called to notify the dll that the
 ViWidth registers value has been changed.
 input:    none
 output:   none
-*******************************************************************/ 
+*******************************************************************/
 EXPORT void CALL ViWidthChanged (void)
 {
 }
@@ -1565,7 +1565,7 @@ void DrawFrameBuffer ()
     if (to_fullscreen)
     {
       to_fullscreen = FALSE;
-      
+
       if (!InitGfx (FALSE))
       {
         LOG ("FAILED!!!\n");
@@ -1573,7 +1573,7 @@ void DrawFrameBuffer ()
       }
       fullscreen = TRUE;
     }
-    
+
     if (fullscreen)
     {
       grDepthMask (FXTRUE);
@@ -1589,16 +1589,16 @@ void newSwapBuffers()
   if (rdp.updatescreen)
   {
     rdp.updatescreen = 0;
-    
+
     RDP ("swapped\n");
- 
+
     // Allow access to the whole screen
     if (fullscreen)
     {
       grClipWindow (0, 0, settings.scr_res_x, settings.scr_res_y);
       grDepthBufferFunction (GR_CMP_ALWAYS);
       grDepthMask (FXFALSE);
-      
+
       grCullMode (GR_CULL_DISABLE);
 
       if ((settings.show_fps & 0xF) || settings.clock)
@@ -1624,7 +1624,7 @@ void newSwapBuffers()
           output (0, y, 0, "FPS: %.02f ", fps);
       }
 #endif
-      
+
       if (settings.clock)
       {
         if (settings.clock_24_hr)
@@ -1632,17 +1632,17 @@ void newSwapBuffers()
           time_t ltime;
           time (&ltime);
           tm *cur_time = localtime (&ltime);
-          
+
           sprintf (out_buf, "%.2d:%.2d:%.2d", cur_time->tm_hour, cur_time->tm_min, cur_time->tm_sec);
         }
         else
         {
           char ampm[] = "AM";
           time_t ltime;
-          
+
           time (&ltime);
           tm *cur_time = localtime (&ltime);
-          
+
           if (cur_time->tm_hour >= 12)
           {
             strcpy (ampm, "PM");
@@ -1651,7 +1651,7 @@ void newSwapBuffers()
           }
           if (cur_time->tm_hour == 0)
             cur_time->tm_hour = 12;
-          
+
           if (cur_time->tm_hour >= 10)
             sprintf (out_buf, "%.5s %s", asctime(cur_time) + 11, ampm);
           else
@@ -1666,7 +1666,7 @@ void newSwapBuffers()
     {
       // Allocate the screen
       debug.screen = new BYTE [(settings.res_x*settings.res_y) << 1];
-      
+
       // Lock the backbuffer (already rendered)
       GrLfbInfo_t info;
       info.size = sizeof(GrLfbInfo_t);
@@ -1676,9 +1676,9 @@ void newSwapBuffers()
         GR_ORIGIN_UPPER_LEFT,
         FXFALSE,
         &info));
-      
+
       DWORD offset_src=0/*(settings.scr_res_y-settings.res_y)*info.strideInBytes*/, offset_dst=0;
-      
+
       // Copy the screen
       for (DWORD y=0; y<settings.res_y; y++)
       {
@@ -1686,18 +1686,18 @@ void newSwapBuffers()
         offset_dst += settings.res_x << 1;
         offset_src += info.strideInBytes;
       }
-      
+
       // Unlock the backbuffer
       grLfbUnlock (GR_LFB_READ_ONLY, GR_BUFFER_BACKBUFFER);
     }
 
     if (fullscreen)
     {
-      LOG ("BUFFER SWAPPED\n"); 
-      grBufferSwap (settings.vsync);    
+      LOG ("BUFFER SWAPPED\n");
+      grBufferSwap (settings.vsync);
       fps_count ++;
     }
-    
+
     if (fullscreen && (debugging || settings.wireframe || settings.buff_clear))
     {
       if (settings.RE2 && settings.fb_depth_render)
@@ -1706,7 +1706,7 @@ void newSwapBuffers()
         grDepthMask (FXTRUE);
       grBufferClear (0, 0, 0xFFFF);
     }
-    
+
     frame_count ++;
   }
 }
@@ -1720,12 +1720,12 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
   case WM_ACTIVATE:
     rdp.window_changed = TRUE;
     break;
-    
+
     /*    case WM_DESTROY:
     SetWindowLong (gfx.hWnd, GWL_WNDPROC, (long)oldWndProc);
     break;*/
   }
-  
+
   return CallWindowProc(oldWndProc, hwnd, msg, wParam, lParam);
 }
 #endif
@@ -1733,15 +1733,15 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 BOOL k_ctl=0, k_alt=0, k_del=0;
 
 #ifdef ALTTAB_FIX
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, 
+LRESULT CALLBACK LowLevelKeyboardProc(int nCode,
                                       WPARAM wParam, LPARAM lParam) {
   if (!fullscreen) return CallNextHookEx(NULL, nCode, wParam, lParam);
-  
+
   BOOL TabKey = FALSE;
-  
+
   PKBDLLHOOKSTRUCT p;
-  
-  if (nCode == HC_ACTION) 
+
+  if (nCode == HC_ACTION)
   {
     switch (wParam) {
     case WM_KEYUP:    case WM_SYSKEYUP:
@@ -1750,25 +1750,25 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode,
       if (p->vkCode == 164) k_alt = 0;
       if (p->vkCode == 46) k_del = 0;
       goto do_it;
-      
+
     case WM_KEYDOWN:  case WM_SYSKEYDOWN:
       p = (PKBDLLHOOKSTRUCT) lParam;
       if (p->vkCode == 162) k_ctl = 1;
       if (p->vkCode == 164) k_alt = 1;
       if (p->vkCode == 46) k_del = 1;
       goto do_it;
-      
-do_it:    
+
+do_it:
       TabKey =
         ((p->vkCode == VK_TAB) && ((p->flags & LLKHF_ALTDOWN) != 0)) ||
         ((p->vkCode == VK_ESCAPE) && ((p->flags & LLKHF_ALTDOWN) != 0)) ||
         ((p->vkCode == VK_ESCAPE) && ((GetKeyState(VK_CONTROL) & 0x8000) != 0)) ||
         (k_ctl && k_alt && k_del);
-      
+
       break;
     }
   }
-  
+
   if (TabKey)
   {
     k_ctl = 0;
@@ -1776,7 +1776,7 @@ do_it:
     k_del = 0;
     ReleaseGfx ();
   }
-  
+
   return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 #endif

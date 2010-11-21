@@ -15,7 +15,7 @@
 *
 * You should have received a copy of the GNU General Public
 * Licence along with this program; if not, write to the Free
-* Software Foundation, Inc., 51 Franklin Street, Fifth Floor, 
+* Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
 * Boston, MA  02110-1301, USA
 */
 
@@ -27,7 +27,7 @@
 
 BOOL Config_Open();
 PackedScreenResolution Config_ReadScreenSettings();
-int Config_ReadInt(const char *itemname, int def_value, BOOL create=TRUE);
+int Config_ReadInt(const char *itemname, const char *desc, int def_value, BOOL create=TRUE, BOOL isBoolean=TRUE);
 
 
 #endif /* CONFIG_H */
