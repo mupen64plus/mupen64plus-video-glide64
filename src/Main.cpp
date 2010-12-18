@@ -326,14 +326,14 @@ void ReadSettings ()
   settings.ucode = (DWORD)Config_ReadInt ("ucode", "Force microcode", 2, TRUE, FALSE);
 
   settings.wireframe = (BOOL)Config_ReadInt ("wireframe", "Wireframe display", 0);
-  settings.wfmode = (int)Config_ReadInt ("wfmode", "Wireframe mode", 1, TRUE, FALSE);
-  settings.filtering = (BYTE)Config_ReadInt ("filtering", "Texture filter", 1, TRUE, FALSE);
+  settings.wfmode = (int)Config_ReadInt ("wfmode", "Wireframe mode: 0=Normal colors, 1=Vertex colors, 2=Red only", 1, TRUE, FALSE);
+  settings.filtering = (BYTE)Config_ReadInt ("filtering", "Filtering mode: 0=None, 1=Force bilinear, 2=Force point-sampled", 1, TRUE, FALSE);
   settings.fog = (BOOL)Config_ReadInt ("fog", "Fog enabled", 1);
   settings.buff_clear = (BOOL)Config_ReadInt ("buff_clear", "Buffer clear on every frame", 1);
   settings.vsync = (BOOL)Config_ReadInt ("vsync", "Vertical sync", 0);
   settings.fast_crc = (BOOL)Config_ReadInt ("fast_crc", "Fast CRC", 0);
-  settings.swapmode = (BYTE)Config_ReadInt ("swapmode", "Swap mode", 1, TRUE, FALSE);
-  settings.lodmode = (BYTE)Config_ReadInt ("lodmode", "LOD mode", 0, TRUE, FALSE);
+  settings.swapmode = (BYTE)Config_ReadInt ("swapmode", "Buffer swapping method: 0=Old, 1=New, 2=Hybrid", 1, TRUE, FALSE);
+  settings.lodmode = (BYTE)Config_ReadInt ("lodmode", "LOD calculation: 0=Off, 1=Fast, 2=Precise", 0, TRUE, FALSE);
 
   settings.logging = (BOOL)Config_ReadInt ("logging", "Logging", 0);
   settings.log_clear = (BOOL)Config_ReadInt ("log_clear", "", 0);
@@ -348,7 +348,7 @@ void ReadSettings ()
   settings.flame_corona = (BOOL)Config_ReadInt ("flame_corona", "Zelda corona fix", 0);
   //  settings.RE2_native_video = (BOOL)INI_ReadInt ("RE2_native_video", 0);
 
-  settings.show_fps = (BYTE)Config_ReadInt ("show_fps", "FPS counter", 0, TRUE, FALSE);
+  settings.show_fps = (BYTE)Config_ReadInt ("show_fps", "Display performance stats (add together desired flags): 1=FPS counter, 2=VI/s counter, 4=% speed, 8=FPS transparent", 0, TRUE, FALSE);
 
   settings.clock = (BOOL)Config_ReadInt ("clock", "Clock enabled", 0);
   settings.clock_24_hr = (BOOL)Config_ReadInt ("clock_24_hr", "Clock is 24-hour", 0);
@@ -368,7 +368,7 @@ void ReadSettings ()
   settings.hotkeys = 0;
 
   settings.full_res = 0;
-  settings.tex_filter = (BOOL)Config_ReadInt ("tex_filter", "Texture filtering", 0);
+  settings.tex_filter = (DWORD)Config_ReadInt ("tex_filter", "Texture filter: 0=None, 1=Blur edges, 2=Super 2xSai, 3=Hq2x, 4=Hq4x", 0, TRUE, FALSE);
   settings.noditheredalpha = (BOOL)Config_ReadInt ("noditheredalpha", "Disable dithered alpha", 1);
   settings.noglsl = (BOOL)Config_ReadInt ("noglsl", "Disable GLSL combiners", 1);
   settings.FBO = (BOOL)Config_ReadInt ("fbo", "Use framebuffer objects", 0);
@@ -1008,13 +1008,13 @@ EXPORT m64p_error CALL PluginGetVersion(m64p_plugin_type *PluginType, int *Plugi
         *PluginType = M64PLUGIN_GFX;
 
     if (PluginVersion != NULL)
-        *PluginVersion = 0x016303;
+        *PluginVersion = 0x016304;
 
     if (APIVersion != NULL)
         *APIVersion = PLUGIN_API_VERSION;
 
     if (PluginNamePtr != NULL)
-        *PluginNamePtr = "Glide64";
+        *PluginNamePtr = "Glide64 Video Plugin";
 
     if (Capabilities != NULL)
     {
