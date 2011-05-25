@@ -23,11 +23,19 @@
 #define M64P_H
 
 #include "m64p_types.h"
+#include "m64p_common.h"
 #include "m64p_plugin.h"
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include <stdio.h>
 
+#define PLUGIN_NAME              "Glide64 Video Plugin"
+#define PLUGIN_VERSION           0x016305
+#define VIDEO_PLUGIN_API_VERSION 0x020000
+#define CONFIG_API_VERSION       0x020000
+#define VIDEXT_API_VERSION       0x020000
+
+#define VERSION_PRINTF_SPLIT(x) (((x) >> 16) & 0xffff), (((x) >> 8) & 0xff), ((x) & 0xff)
 void WriteLog(m64p_msg_level level, const char *msg, ...);
 
 //The Glide API originally used an integer to pick an enumerated resolution.
