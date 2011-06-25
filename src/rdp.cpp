@@ -3512,7 +3512,6 @@ void DetectFrameBufferUsage ()
         if (rdp.swap_ci_index < 0)
         {
           rdp.texbufs[0].clear_allowed = TRUE;
-	  rdp.texbufs[0].clear_allowed = TRUE;
           OpenTextureBuffer(rdp.frame_buffers[rdp.main_ci_index]);
         }
       }
