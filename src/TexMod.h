@@ -351,14 +351,13 @@ static void mod_tex_scale_col_add_col (WORD *dst, int size, DWORD color, DWORD f
 
 static void mod_tex_add_col (WORD *dst, int size, DWORD color)
 {
-    DWORD cr, cg, cb, ca;
+    DWORD cr, cg, cb;
     WORD col;
     BYTE a, r, g, b;
 
     cr = (color >> 12) & 0xF;
     cg = (color >> 8) & 0xF;
     cb = (color >> 4) & 0xF;
-    ca = color & 0xF;
 
     for (int i=0; i<size; i++)
     {
@@ -533,7 +532,6 @@ static void mod_tex_mul_col (WORD *dst, int size, DWORD color)
     WORD col;
     BYTE r, g, b;
     WORD a;
-    float percent, percent_i;
 
     cr = (float)((color >> 12) & 0xF)/16.0f;
     cg = (float)((color >> 8) & 0xF)/16.0f;
@@ -543,8 +541,6 @@ static void mod_tex_mul_col (WORD *dst, int size, DWORD color)
     {
         col = *dst;
         a = col & 0xF000;
-        percent = (a >> 12) / 15.0f;
-        percent_i = 1.0f - percent;
         r = (BYTE)(cr * ((col & 0x0F00) >> 8));
         g = (BYTE)(cg * ((col & 0x00F0) >> 4));
         b = (BYTE)(cb * (col & 0x000F));

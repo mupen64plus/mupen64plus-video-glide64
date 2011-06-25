@@ -834,17 +834,11 @@ static void CopyFrameBuffer (GrBuffer_t buffer = GR_BUFFER_BACKBUFFER)
         DWORD c;
         DWORD stride = info.strideInBytes>>1;
 
-        BOOL read_alpha = settings.fb_read_alpha;
-        if (settings.PM && rdp.frame_buffers[rdp.ci_count-1].status != ci_aux)
-          read_alpha = FALSE;
         for (int y=0; y<height; y++)
           {
         for (int x=0; x<width; x++)
           {
             c = ptr_src[int(x*scale_x) + int(y * scale_y) * stride];
-//          c = (c&0xFFC0) | ((c&0x001F) << 1) | 1;
-//          if (read_alpha && c == 1)
-//            c = 0;
             ptr_dst32[x + y * width] = c;
           }
           }
@@ -3517,7 +3511,8 @@ void DetectFrameBufferUsage ()
       {
         if (rdp.swap_ci_index < 0)
         {
-          rdp.texbufs[0].clear_allowed = rdp.texbufs[0].clear_allowed = TRUE;
+          rdp.texbufs[0].clear_allowed = TRUE;
+	  rdp.texbufs[0].clear_allowed = TRUE;
           OpenTextureBuffer(rdp.frame_buffers[rdp.main_ci_index]);
         }
       }
