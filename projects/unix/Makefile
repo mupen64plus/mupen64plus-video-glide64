@@ -90,7 +90,7 @@ ifeq ("$(CPU)","NONE")
 endif
 
 # base CFLAGS, LIBS, and LDFLAGS
-CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC $(shell pkg-config --cflags gl)
+CFLAGS += -Wall -ffast-math -msse -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC $(shell pkg-config --cflags gl)
 CXXFLAGS += -fvisibility-inlines-hidden
 LDFLAGS += -ldl $(shell pkg-config --libs gl)
 
@@ -112,13 +112,6 @@ endif
 ifeq ($(OS), LINUX)
   # only export api symbols
   LDFLAGS += -Wl,-version-script,$(SRCDIR)/video_api_export.ver
-  ifeq ($(CPU), X86)
-    ifeq ($(ARCH_DETECTED), 64BITS)
-      CFLAGS += -pipe -O3 -march=athlon64
-    else
-      CFLAGS += -pipe -O3 -mmmx -msse -march=i686 -mtune=pentium-m -fomit-frame-pointer
-    endif
-  endif
 endif
 ifeq ($(OS), OSX)
   ifeq ($(CPU), X86)
@@ -130,9 +123,6 @@ ifeq ($(OS), OSX)
       LDFLAGS += -bundle -framework OpenGL -arch i686
     endif
   endif
-endif
-ifeq ($(CPU), PPC)
-  CFLAGS += -mcpu=powerpc
 endif
 
 # test for presence of SDL
