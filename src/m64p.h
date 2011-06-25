@@ -22,6 +22,7 @@
 #ifndef M64P_H
 #define M64P_H
 
+#define M64P_PLUGIN_PROTOTYPES 1
 #include "m64p_types.h"
 #include "m64p_common.h"
 #include "m64p_plugin.h"
