@@ -90,9 +90,9 @@ ifeq ("$(CPU)","NONE")
 endif
 
 # base CFLAGS, LIBS, and LDFLAGS
-CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC
+CFLAGS += -Wall -ffast-math -funroll-loops -fexpensive-optimizations -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC $(shell pkg-config --cflags gl)
 CXXFLAGS += -fvisibility-inlines-hidden
-LDFLAGS += -ldl
+LDFLAGS += -ldl $(shell pkg-config --libs gl)
 
 # Since we are building a shared library, we must compile with -fPIC for x86_64 CPUs.
 # On 32-bit systems we do not want to use -fPIC because we don't have to and it has a big performance penalty on this arch
@@ -109,11 +109,7 @@ ifeq ($(ARCH_DETECTED), 64BITS_32)
 endif
 
 # set special flags per-system
-ifeq ($(OS),FREEBSD)
-  LDFLAGS += -lGL
-endif
 ifeq ($(OS), LINUX)
-  LDFLAGS += -lGL
   # only export api symbols
   LDFLAGS += -Wl,-version-script,$(SRCDIR)/video_api_export.ver
   ifeq ($(CPU), X86)
