@@ -98,7 +98,7 @@ endif
 # base CFLAGS, LIBS, and LDFLAGS
 CFLAGS += -Wall -ffast-math -msse -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC $(shell pkg-config --cflags gl)
 CXXFLAGS += -fvisibility-inlines-hidden
-LDFLAGS += -ldl $(shell pkg-config --libs gl)
+LDFLAGS += $(shell pkg-config --libs gl)
 
 # Since we are building a shared library, we must compile with -fPIC for x86_64 CPUs.
 # On 32-bit systems we do not want to use -fPIC because we don't have to and it has a big performance penalty on this arch
@@ -117,18 +117,21 @@ endif
 # set special flags per-system
 ifeq ($(OS), LINUX)
   # only export api symbols
-  LDFLAGS += -Wl,-version-script,$(SRCDIR)/video_api_export.ver
+  LDFLAGS += -ldl -Wl,-version-script,$(SRCDIR)/video_api_export.ver
 endif
 ifeq ($(OS), OSX)
   ifeq ($(CPU), X86)
     ifeq ($(ARCH_DETECTED), 64BITS)
       CFLAGS += -pipe -O3 -arch x86_64 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk
-      LDFLAGS += -bundle -framework OpenGL -arch x86_64
+      LDFLAGS += -bundle -framework OpenGL -arch x86_64 -ldl
     else
       CFLAGS += -pipe -O3 -mmmx -msse -fomit-frame-pointer -arch i686 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk
-      LDFLAGS += -bundle -framework OpenGL -arch i686
+      LDFLAGS += -bundle -framework OpenGL -arch i686 -ldl
     endif
   endif
+endif
+ifeq ($(OS), FREEBSD)
+  LDFLAGS += -lc
 endif
 
 # test for presence of SDL
