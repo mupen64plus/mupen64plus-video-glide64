@@ -263,9 +263,9 @@ targets:
 all: $(TARGET)
 
 install: $(TARGET)
-	$(INSTALL) -d -v "$(DESTDIR)$(PLUGINDIR)"
+	$(INSTALL) -d "$(DESTDIR)$(PLUGINDIR)"
 	$(INSTALL) -m 0644 $(TARGET) "$(DESTDIR)$(PLUGINDIR)"
-	$(INSTALL) -d -v "$(DESTDIR)$(SHAREDIR)"
+	$(INSTALL) -d "$(DESTDIR)$(SHAREDIR)"
 	$(INSTALL) -m 0644 "../../data/Glide64.ini" "$(DESTDIR)$(SHAREDIR)"
 
 uninstall:
