@@ -139,8 +139,8 @@ ifeq ($(shell which sdl-config 2>/dev/null),)
   $(error No SDL development libraries found!)
 endif
 ifeq ($(OS),FREEBSD)
-    CFLAGS  += `${SDL_CONFIG} --cflags`
-    LDFLAGS += `${SDL_CONFIG} --libs`
+    CFLAGS  += $(shell sdl-config --cflags)
+    LDFLAGS += $(shell sdl-config --libs)
 endif
 ifeq ($(OS),OSX)
     CFLAGS  += $(shell sdl-config --cflags)
