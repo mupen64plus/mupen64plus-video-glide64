@@ -1760,7 +1760,7 @@ void fix_tex_coord (VERTEX **v)
 
       for (int t = 0; t < 3; t++)
       {
-        if ((v[t]->uv_fixed == 0)) //&& (((short)v[t]->ou > 0) || ((short)v[t]->ov > 0)))
+        if (v[t]->uv_fixed == 0) //&& (((short)v[t]->ou > 0) || ((short)v[t]->ov > 0)))
         {
           if ( (abs((short)v[t]->ou - ru) < diff) || (abs((short)v[t]->ov - rv) < diff) )
 //          if ( ((short)v[t]->ou == lu) || (abs((short)v[t]->ou - ru) < 3) )
