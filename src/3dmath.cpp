@@ -41,6 +41,7 @@
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include "3dmath.h"
+#include <xmmintrin.h>
 
 void calc_light (VERTEX *v)
 {
@@ -194,23 +195,23 @@ void __stdcall MulMatricesSSE(float m1[4][4],float m2[4][4],float r[4][4])
     
     // Fill tmp with four copies of leftrow[0]
     v4sf tmp = leftrow;
-    tmp = __builtin_ia32_shufps (tmp, tmp, 0);
+    tmp = _mm_shuffle_ps (tmp, tmp, 0);
     // Calculate the four first summands
     v4sf destrow = tmp * row0;
     
     // Fill tmp with four copies of leftrow[1]
     tmp = leftrow;
-    tmp = __builtin_ia32_shufps (tmp, tmp, 1 + (1 << 2) + (1 << 4) + (1 << 6));
+    tmp = _mm_shuffle_ps (tmp, tmp, 1 + (1 << 2) + (1 << 4) + (1 << 6));
     destrow += tmp * row1;
     
     // Fill tmp with four copies of leftrow[2]
     tmp = leftrow;
-    tmp = __builtin_ia32_shufps (tmp, tmp, 2 + (2 << 2) + (2 << 4) + (2 << 6));
+    tmp = _mm_shuffle_ps (tmp, tmp, 2 + (2 << 2) + (2 << 4) + (2 << 6));
     destrow += tmp * row2;
     
     // Fill tmp with four copies of leftrow[3]
     tmp = leftrow;
-    tmp = __builtin_ia32_shufps (tmp, tmp, 3 + (3 << 2) + (3 << 4) + (3 << 6));
+    tmp = _mm_shuffle_ps (tmp, tmp, 3 + (3 << 2) + (3 << 4) + (3 << 6));
     destrow += tmp * row3;
     
     __builtin_ia32_storeups(r[i], destrow);
