@@ -230,7 +230,7 @@ void display_warning(const char *text, ...)
         vsprintf((char*)buf, (char*)text, ap);
         va_end(ap);
 
-        WriteLog(M64MSG_WARNING, buf);
+        WriteLog(M64MSG_WARNING, "%s", buf);
         first_message--;
     }
 }
@@ -1283,7 +1283,7 @@ void updateTexture()
 
     // nothing changed, don't update the texture
     if (!buffer_cleared) {
-      WriteLog(M64MSG_VERBOSE, "update cancelled\n", pBufferAddress);
+      WriteLog(M64MSG_VERBOSE, "update cancelled\n");
       return;
     }
     

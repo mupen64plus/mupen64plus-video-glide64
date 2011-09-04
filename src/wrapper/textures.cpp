@@ -642,7 +642,7 @@ grTexDetailControl(
                    float detail_max
                    )
 {
-    WriteLog(M64MSG_VERBOSE, "grTexDetailControl(%d,%d,%d,%d)\r\n", tmu, lod_bias, detail_scale, detail_max);
+    WriteLog(M64MSG_VERBOSE, "grTexDetailControl(%d,%d,%d,%f)\r\n", tmu, lod_bias, detail_scale, detail_max);
     if (lod_bias != 31 && detail_scale != 7)
     {
         if (!lod_bias && !detail_scale && !detail_max) return;

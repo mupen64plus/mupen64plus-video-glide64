@@ -233,7 +233,7 @@ extern __int64 perf_next;
 extern std::ofstream loga;
 #define LOG(x) loga.open("log.txt",ios::app); loga << x; loga.flush(); loga.close();
 #else
-#define LOG(x) WriteLog(M64MSG_VERBOSE, x);
+#define LOG(x) WriteLog(M64MSG_VERBOSE, "%s", x);
 #endif
 
 
