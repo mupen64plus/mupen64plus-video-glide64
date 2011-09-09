@@ -1011,7 +1011,6 @@ EXPORT m64p_error CALL PluginStartup(m64p_dynlib_handle CoreLibHandle, void *Con
     if (configDir)
     {
         SetConfigDir(configDir);
-        CoreVideo_Init();
 		ReadSettings();
         return M64ERR_SUCCESS;
     }
@@ -1370,6 +1369,7 @@ EXPORT void CALL RomClosed (void)
   romopen = FALSE;
   if (fullscreen && evoodoo)
     ReleaseGfx ();
+  CoreVideo_Quit();
 }
 
 BOOL no_dlist = TRUE;
@@ -1384,6 +1384,12 @@ output:   none
 EXPORT int CALL RomOpen (void)
 {
   LOG ("RomOpen ()\n");
+  if (CoreVideo_Init() != M64ERR_SUCCESS)
+  {
+    WriteLog(M64MSG_ERROR, "Could not initialize video!");
+    return false;
+  }
+
   no_dlist = TRUE;
   romopen = TRUE;
   ucode_error_report = TRUE;    // allowed to report ucode errors
