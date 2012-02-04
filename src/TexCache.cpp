@@ -485,7 +485,7 @@ void GetTexInfo (int id, int tile)
                     (cache->mod_color&mod_mask) == (modcolor&mod_mask) &&
                     (cache->mod_color1&mod_mask) == (modcolor1&mod_mask) &&
                     (cache->mod_color2&mod_mask) == (modcolor2&mod_mask) &&
-                    abs(cache->mod_factor - modfactor) < 8)
+                    abs(static_cast<int>(cache->mod_factor - modfactor)) < 8)
                 {
                     FRDP (" | | | |- Texture found in cache (tmu=%d).\n", node->tmu);
                     tex_found[id][node->tmu] = node->number;
