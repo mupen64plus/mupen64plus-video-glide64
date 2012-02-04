@@ -3179,7 +3179,7 @@ val         val
 size        1 = BYTE, 2 = WORD, 4 = DWORD
 output:   none
 *******************************************************************/
-EXPORT void CALL FBRead(DWORD addr)
+EXPORT void CALL FBRead(unsigned int addr)
 {
     LOG ("FBRead ()\n");
 
@@ -3256,7 +3256,7 @@ val         val
 size        1 = BYTE, 2 = WORD, 4 = DWORD
 output:   none
 *******************************************************************/
-EXPORT void CALL FBWrite(DWORD addr, DWORD size)
+EXPORT void CALL FBWrite(unsigned int addr, unsigned int size)
 {
     LOG ("FBWrite ()\n");
   if (cpu_fb_ignore)
