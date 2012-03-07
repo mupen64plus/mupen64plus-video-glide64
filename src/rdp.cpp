@@ -65,6 +65,8 @@ DWORD frame_count;  // frame counter
 BOOL ucode_error_report = TRUE;
 int wrong_tile = -1;
 
+int drawFlag = 1;	// draw flag for rendering callback
+
 #if defined(WIN32) || defined(NO_ASM)
   #define BYTESWAP1(s1) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24);
   #define BYTESWAP2(s1,s2) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24); \

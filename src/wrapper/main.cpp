@@ -43,6 +43,8 @@ extern void FindBestDepthBias();
 extern int getEnableFBO();
 extern int getDisableAuxbuf();
 
+extern int drawFlag;	// draw flag for rendering callback
+
 #ifdef WIN32
 PFNGLACTIVETEXTUREARBPROC glActiveTextureARB;
 PFNGLATTACHOBJECTARBPROC glAttachObjectARB;
@@ -1546,14 +1548,17 @@ grBufferClear( GrColor_t color, GrAlpha_t alpha, FxU32 depth )
 }
 
 
-extern void (*renderCallback)();
+extern void (*renderCallback)(int);
 
 // #include <unistd.h>
 FX_ENTRY void FX_CALL
 grBufferSwap( FxU32 swap_interval )
 {
   if(renderCallback)
-    (*renderCallback)();
+    (*renderCallback)(drawFlag);
+  drawFlag = 1;	//TODO: set drawFlag to 0 here
+  //TODO: need to find the proper place to set drawFlag to 1 when a frame has been rendered
+
   int i;
     WriteLog(M64MSG_VERBOSE, "grBufferSwap(%d)\r\n", swap_interval);
   //printf("swap\n");

@@ -203,7 +203,7 @@ DWORD   offset_texbuf1 = 0;
 BOOL    capture_screen = 0;
 char    capture_path[256];
 
-void (*renderCallback)() = NULL;
+void (*renderCallback)(int) = NULL;
 static void (*l_DebugCallback)(void *, int, const char *) = NULL;
 static void *l_DebugCallContext = NULL;
 
@@ -1472,7 +1472,7 @@ EXPORT void CALL ShowCFB (void)
   LOG ("ShowCFB ()\n");
 }
 
-EXPORT void CALL SetRenderingCallback(void (*callback)())
+EXPORT void CALL SetRenderingCallback(void (*callback)(int))
 {
     renderCallback = callback;
 }
