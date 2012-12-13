@@ -61,6 +61,11 @@ ifneq ("$(filter GNU/kFreeBSD kfreebsd,$(UNAME))","")
   SO_EXTENSION = so
   SHARED = -shared
 endif
+ifeq ("$(patsubst MINGW%,MINGW,$(UNAME))","MINGW")
+  OS = MINGW
+  SO_EXTENSION = dll
+  SHARED = -shared
+endif
 ifeq ("$(OS)","NONE")
   $(error OS type "$(UNAME)" not supported.  Please file bug report at 'http://code.google.com/p/mupen64plus/issues')
 endif
@@ -200,6 +205,10 @@ ifeq ($(OS),LINUX)
     CFLAGS  += $(shell $(SDL_CONFIG) --cflags)
     LDLIBS += $(shell $(SDL_CONFIG) --libs)
 endif
+ifeq ($(OS), MINGW)
+  CFLAGS += $(shell $(SDL_CONFIG) --cflags)
+  LDLIBS += $(shell $(SDL_CONFIG) --libs)
+endif
 
 # set mupen64plus core API header path
 ifneq ("$(APIDIR)","")
@@ -283,7 +292,6 @@ SOURCE = \
 	$(SRCDIR)/TexBuffer.cpp \
 	$(SRCDIR)/TexCache.cpp \
 	$(SRCDIR)/Util.cpp \
-	$(SRCDIR)/osal_dynamiclib_unix.c \
 	$(SRCDIR)/rdp.cpp \
 	$(SRCDIR)/wrapper/2xsai.cpp \
 	$(SRCDIR)/wrapper/combiner.cpp \
@@ -293,7 +301,13 @@ SOURCE = \
 	$(SRCDIR)/wrapper/hq2x.cpp \
 	$(SRCDIR)/wrapper/hq4x.cpp \
 	$(SRCDIR)/wrapper/main.cpp \
-	$(SRCDIR)/wrapper/textures.cpp 
+	$(SRCDIR)/wrapper/textures.cpp
+
+ifeq ($(OS),MINGW)
+SOURCE += $(SRCDIR)/osal_dynamiclib_win32.c
+else
+SOURCE += $(SRCDIR)/osal_dynamiclib_unix.c
+endif
 
 
 
