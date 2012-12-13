@@ -23,7 +23,7 @@
 # Makefile for Glide64 plugin in Mupen64Plus
 
 # detect operating system
-UNAME = $(shell uname -s)
+UNAME ?= $(shell uname -s)
 OS := NONE
 ifeq ("$(UNAME)","Linux")
   OS = LINUX
