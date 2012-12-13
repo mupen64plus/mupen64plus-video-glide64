@@ -41,7 +41,9 @@
 #include "m64p_config.h"
 #include "m64p_vidext.h"
 #include "3dmath.h"
+#if !defined(NO_ASM)
 #include <xmmintrin.h>
+#endif
 
 void calc_light (VERTEX *v)
 {
