@@ -118,6 +118,10 @@ CFLAGS += $(OPTFLAGS) -Wall -ffast-math -fno-strict-aliasing -fvisibility=hidden
 CXXFLAGS += -fvisibility-inlines-hidden
 LDFLAGS += $(SHARED)
 
+# default configuration programs
+SDL_CONFIG ?= sdl-config
+PKG_CONFIG ?= pkg-config
+
 ifeq ($(CPU), X86)
   CFLAGS += -msse
 endif
@@ -169,32 +173,32 @@ ifeq ($(OS), FREEBSD)
 endif
 
 # test for essential build dependencies
-ifeq ($(shell which pkg-config 2>/dev/null),)
-  $(error pkg-config not found)
+ifeq ($(shell which $(PKG_CONFIG) 2>/dev/null),)
+  $(error $(PKG_CONFIG) not found)
 endif
-ifeq ($(shell pkg-config --modversion gl 2>/dev/null),)
+ifeq ($(shell $(PKG_CONFIG) --modversion gl 2>/dev/null),)
   $(error No OpenGL development libraries found!)
 endif
-CFLAGS += $(shell pkg-config --cflags gl)
-LDLIBS += $(shell pkg-config --libs gl)
+CFLAGS += $(shell $(PKG_CONFIG) --cflags gl)
+LDLIBS += $(shell $(PKG_CONFIG) --libs gl)
 
 # test for presence of SDL
-ifeq ($(shell which sdl-config 2>/dev/null),)
+ifeq ($(shell which $(SDL_CONFIG) 2>/dev/null),)
   $(error No SDL development libraries found!)
 endif
 ifeq ($(OS),FREEBSD)
-    CFLAGS  += $(shell sdl-config --cflags)
-    LDLIBS += $(shell sdl-config --libs)
+    CFLAGS  += $(shell $(SDL_CONFIG) --cflags)
+    LDLIBS += $(shell $(SDL_CONFIG) --libs)
 endif
 ifeq ($(OS),OSX)
-    CFLAGS  += $(shell sdl-config --cflags)
+    CFLAGS  += $(shell $(SDL_CONFIG) --cflags)
     # sdl-config on mac screws up when we're trying to build a library and not an executable
     # SDL 1.3 is supposed to fix that, if it's ever released
     LDLIBS += -L/usr/local/lib -lSDL -Wl,-framework,Cocoa
 endif
 ifeq ($(OS),LINUX)
-    CFLAGS  += $(shell sdl-config --cflags)
-    LDLIBS += $(shell sdl-config --libs)
+    CFLAGS  += $(shell $(SDL_CONFIG) --cflags)
+    LDLIBS += $(shell $(SDL_CONFIG) --libs)
 endif
 
 # set mupen64plus core API header path
