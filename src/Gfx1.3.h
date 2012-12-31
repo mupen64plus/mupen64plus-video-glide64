@@ -146,7 +146,7 @@ extern "C" {
 #ifdef WIN32
 #define LOGKEY      VK_LCONTROL     // this key
 #else
-#include <SDL/SDL.h>
+#include <SDL.h>
 #define LOGKEY KMOD_LCTRL
 inline int GetAsyncKeyState(int key) {
   return (SDL_GetModState() & key) != 0;
