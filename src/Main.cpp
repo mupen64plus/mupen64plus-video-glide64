@@ -633,21 +633,10 @@ void guLoadTextures ()
   for (i=0; i<0x200; i++)
   {
     // cur = ~*(data++), byteswapped
-#if !defined(__GNUC__) && !defined(NO_ASM)
-    __asm {
-      mov eax, dword ptr [data]
-        mov ecx, dword ptr [eax]
-        add eax, 4
-        mov dword ptr [data], eax
-        not ecx
-        bswap ecx
-        mov dword ptr [cur],ecx
-    }
-#elif !defined(NO_ASM)
-     asm volatile ("bswap %[cur]"
-           : [cur] "=g"(cur)
-           : "[cur]"(~*(data++))
-           );
+#if !defined(__GNUC__)
+     cur = _byteswap_ulong(~*(data++));
+#else
+     cur = __builtin_bswap32(~*(data++));
 #endif
 
     for (b=0x80000000; b!=0; b>>=1)

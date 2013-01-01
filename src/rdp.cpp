@@ -67,13 +67,19 @@ int wrong_tile = -1;
 
 int drawFlag = 1;	// draw flag for rendering callback
 
-#if defined(WIN32) || defined(NO_ASM)
-  #define BYTESWAP1(s1) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24);
-  #define BYTESWAP2(s1,s2) s1 = ((s1 & 0xff) << 24) | ((s1 & 0xff00) << 8) | ((s1 & 0xff0000) >> 8) | ((s1 & 0xff000000) >> 24); \
-  s2 = ((s2 & 0xff) << 24) | ((s2 & 0xff00) << 8) | ((s2 & 0xff0000) >> 8) | ((s2 & 0xff000000) >> 24);
+#if defined(__GNUC__)
+  #define bswap32(x) __builtin_bswap32(x)
+#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  #include <stdlib.h>
+  #define bswap32(x) _byteswap_ulong(x)
 #else
-  #define BYTESWAP1(s1) asm volatile (" bswap %0; " : "+r" (s1) : :);
-  #define BYTESWAP2(s1,s2) asm volatile (" bswap %0; bswap %1; " : "+r" (s1), "+r" (s2) : :);
+static inline uint32_t bswap32(uint32_t val)
+{
+        return (((val & 0xff000000) >> 24) |
+                ((val & 0x00ff0000) >>  8) |
+                ((val & 0x0000ff00) <<  8) |
+                ((val & 0x000000ff) << 24));
+}
 #endif
 
 // global strings
@@ -1986,9 +1992,8 @@ static void CopyswapBlock(int *pDst, unsigned int cnt, unsigned int SrcOffs)
         int *pSrc = (int *) ((uintptr_t) gfx.RDRAM + SrcOffs);
         for (unsigned int x = 0; x < cnt; x++)
         {
-            int s1 = *pSrc++;
-            int s2 = *pSrc++;
-            BYTESWAP2(s1, s2)
+            int s1 = bswap32(*pSrc++);
+            int s2 = bswap32(*pSrc++);
             *pDst++ = s1;
             *pDst++ = s2;
         }
@@ -1998,8 +2003,7 @@ static void CopyswapBlock(int *pDst, unsigned int cnt, unsigned int SrcOffs)
         // set source pointer to 4-byte aligned RDRAM location before the start
         int *pSrc = (int *) ((uintptr_t) gfx.RDRAM + (SrcOffs & 0xfffffffc));
         // do the first partial 32-bit word
-        int s0 = *pSrc++;
-        BYTESWAP1(s0)
+        int s0 = bswap32(*pSrc++);
         for (int x = 0; x < rem; x++)
             s0 >>= 8;
         for (int x = 4; x > rem; x--)
@@ -2009,21 +2013,18 @@ static void CopyswapBlock(int *pDst, unsigned int cnt, unsigned int SrcOffs)
             s0 >>= 8;
         }
         // do one full 32-bit word
-        s0 = *pSrc++;
-        BYTESWAP1(s0)
+        s0 = bswap32(*pSrc++);
         *pDst++ = s0;
         // do 'cnt-1' 64-bit dwords
         for (unsigned int x = 0; x < cnt-1; x++)
         {
-            int s1 = *pSrc++;
-            int s2 = *pSrc++;
-            BYTESWAP2(s1, s2)
+            int s1 = bswap32(*pSrc++);
+            int s2 = bswap32(*pSrc++);
             *pDst++ = s1;
             *pDst++ = s2;
         }
         // do last partial 32-bit word
-        s0 = *pSrc++;
-        BYTESWAP1(s0)
+        s0 = bswap32(*pSrc++);
         for (; rem > 0; rem--)
         {
             *((char *) pDst) = s0 & 0xff;
