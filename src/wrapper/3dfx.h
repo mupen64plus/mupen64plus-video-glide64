@@ -97,6 +97,9 @@ typedef struct { float r, g, b, a; } FxColor4;
 #  else /* !macintosh */
 #    error "Unknown MetroWerks target platform"
 #  endif /* !macintosh */
+#elif defined(__APPLE__)
+#  define FX_ENTRY extern
+#  define FX_CALL
 #else
 #  warning define FX_ENTRY & FX_CALL for your compiler
 #  define FX_ENTRY extern
