@@ -120,7 +120,8 @@ endif
 
 # base CFLAGS, LDLIBS, and LDFLAGS
 OPTFLAGS ?= -O3
-CFLAGS += $(OPTFLAGS) -Wall -ffast-math -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC
+WARNFLAGS ?= -Wall
+CFLAGS += $(OPTFLAGS) $(WARNFLAGS) -ffast-math -fno-strict-aliasing -fvisibility=hidden -I../../src -I../../src/wrapper -DGCC
 CXXFLAGS += -fvisibility-inlines-hidden
 LDFLAGS += $(SHARED)
 
@@ -356,6 +357,7 @@ targets:
 	@echo "    NO_ASM=1      == build without inline assembly code (x86 MMX/SSE)"
 	@echo "    APIDIR=path   == path to find Mupen64Plus Core headers"
 	@echo "    OPTFLAGS=flag == compiler optimization (default: -O3)"
+	@echo "    WARNFLAGS=flag == compiler warning levels (default: -Wall)"
 	@echo "    PIC=(1|0)     == Force enable/disable of position independent code"
 	@echo "    POSTFIX=name  == String added to the name of the the build (default: '')"
 	@echo "  Install Options:"
