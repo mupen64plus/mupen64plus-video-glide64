@@ -634,11 +634,7 @@ void guLoadTextures ()
   for (i=0; i<0x200; i++)
   {
     // cur = ~*(data++), byteswapped
-#if !defined(__GNUC__)
-     cur = _byteswap_ulong(~*(data++));
-#else
-     cur = __builtin_bswap32(~*(data++));
-#endif
+     cur = bswap32(~*(data++));
 
     for (b=0x80000000; b!=0; b>>=1)
     {

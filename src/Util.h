@@ -37,6 +37,8 @@
 #ifndef Util_H
 #define Util_H
 
+#include <stdint.h>
+
 #include "winlnxdefs.h"
 #include "rdp.h"
 
@@ -90,6 +92,19 @@ void fix_tex_coord (VERTEX **v);
             ln = p*(ln-un)+un; \
             lx = lc; \
         }
+
+#if defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+  #include <stdlib.h>
+  #define bswap32(x) _byteswap_ulong(x)
+#else
+static inline uint32_t bswap32(uint32_t val)
+{
+	return (((val & 0xff000000) >> 24) |
+		((val & 0x00ff0000) >>  8) |
+		((val & 0x0000ff00) <<  8) |
+		((val & 0x000000ff) << 24));
+}
+#endif
 
 #endif  // ifndef Util_H
 
