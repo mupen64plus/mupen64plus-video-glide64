@@ -186,14 +186,14 @@ void __stdcall MulMatricesSSE(float m1[4][4],float m2[4][4],float r[4][4])
 #if defined(__GNUC__) && !defined(NO_ASM)
     /* [row][col]*/
     typedef float v4sf __attribute__ ((vector_size (16)));
-    v4sf row0 = __builtin_ia32_loadups(m2[0]);
-    v4sf row1 = __builtin_ia32_loadups(m2[1]);
-    v4sf row2 = __builtin_ia32_loadups(m2[2]);
-    v4sf row3 = __builtin_ia32_loadups(m2[3]);
+    v4sf row0 = _mm_loadu_ps(m2[0]);
+    v4sf row1 = _mm_loadu_ps(m2[1]);
+    v4sf row2 = _mm_loadu_ps(m2[2]);
+    v4sf row3 = _mm_loadu_ps(m2[3]);
 
     for (int i = 0; i < 4; ++i)
     {
-    v4sf leftrow = __builtin_ia32_loadups(m1[i]);
+    v4sf leftrow = _mm_loadu_ps(m1[i]);
     
     // Fill tmp with four copies of leftrow[0]
     v4sf tmp = leftrow;
@@ -216,7 +216,7 @@ void __stdcall MulMatricesSSE(float m1[4][4],float m2[4][4],float r[4][4])
     tmp = _mm_shuffle_ps (tmp, tmp, 3 + (3 << 2) + (3 << 4) + (3 << 6));
     destrow += tmp * row3;
     
-    __builtin_ia32_storeups(r[i], destrow);
+    _mm_storeu_ps(r[i], destrow);
     }
 #elif !defined(NO_ASM)
     __asm
