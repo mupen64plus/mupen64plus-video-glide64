@@ -119,6 +119,28 @@ void TexCacheInit ()
 }
 
 //****************************************************************
+uint32_t textureCRC(uint8_t *addr, int width, int height, int line)
+{
+  uint32_t crc = 0;
+  uint32_t *pixelpos;
+  unsigned int i;
+  uint64_t twopixel_crc;
+
+  pixelpos = (uint32_t*)addr;
+  for (; height; height--) {
+    for (i = width; i; --i) {
+      twopixel_crc = i * (uint64_t)(pixelpos[1] + pixelpos[0] + crc);
+      crc = (uint32_t) ((twopixel_crc >> 32) + twopixel_crc);
+      pixelpos += 2;
+    }
+    crc = ((unsigned int)height * (uint64_t)crc >> 32) + height * crc;
+    pixelpos = (uint32_t *)((char *)pixelpos + line);
+  }
+
+  return crc;
+}
+
+//****************************************************************
 // GetTexInfo - gets information for either t0 or t1, checks if in cache & fills tex_found
 
 void GetTexInfo (int id, int tile)
@@ -289,79 +311,7 @@ void GetTexInfo (int id, int tile)
         if (wid_64 < 1) wid_64 = 1;
         unsigned char * addr = rdp.tmem + (rdp.tiles[tile].t_mem<<3);
         if (height > 0)
-        {
-
-        // Check the CRC
-#if !defined(__GNUC__) && !defined(NO_ASM)
-        __asm {
-            xor eax,eax                         // eax is final result
-            mov ebx,dword ptr [line]
-            mov ecx,dword ptr [height]          // ecx is height counter
-            mov edi,dword ptr [addr]            // edi is ptr to texture memory
-    crc_loop_y:
-            push ecx
-
-            mov ecx,dword ptr [wid_64]
-    crc_loop_x:
-
-            add eax,dword ptr [edi]     // MUST be 64-bit aligned, so manually unroll
-            add eax,dword ptr [edi+4]
-            mov edx,ecx
-            mul edx
-            add eax,edx
-            add edi,8
-
-            dec ecx
-            jnz crc_loop_x
-
-            pop ecx
-
-            mov edx,ecx
-            mul edx
-            add eax,edx
-
-            add edi,ebx
-
-            dec ecx
-            jnz crc_loop_y
-
-            mov dword ptr [crc],eax     // store the result
-            }
-#elif !defined(NO_ASM)
-        int i;
-        int tempheight = height;
-       asm volatile (
-             "xor %[crc], %[crc]      \n"                           // eax is final result
-             "crc_loop_y:           \n"
-             
-             "mov %[wid_64], %[i] \n"
-             "crc_loop_x:           \n"
-             
-             "add (%[addr]), %[crc]    \n"      // MUST be 64-bit aligned, so manually unroll
-             "add 4(%[addr]), %[crc]   \n"
-             "mov %[i], %%edx      \n"
-             "mul %%edx             \n" // edx:eax/crc := eax/crc * edx
-             "add %%edx, %[crc]      \n"
-             "add $8, %[addr]         \n"
-             
-             "dec %[i]             \n"
-             "jnz crc_loop_x        \n"
-             
-             "mov %[tempheight], %%edx      \n"
-             "mul %%edx             \n"
-             "add %%edx, %[crc]      \n"
-             
-             "add %[line], %[addr]      \n"
-             
-             "dec %[tempheight]             \n"
-             "jnz crc_loop_y        \n"
-             : [crc] "=&a"(crc), [i] "=&r" (i), [tempheight] "+r"(tempheight), [addr]"+r"(addr)
-             : [line] "g" ((intptr_t)line), [wid_64] "g" (wid_64)
-             : "memory", "cc", "edx"
-             );
-#endif
-        // ** END CRC CHECK
-    }
+            crc = textureCRC(addr, wid_64, height, line);
     }
     else
     {
