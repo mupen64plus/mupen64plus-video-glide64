@@ -42,6 +42,7 @@
 #include "m64p_vidext.h"
 #include "TexCache.h"
 #include "Combine.h"
+#include "Util.h"
 
 void LoadTex (int id, int tmu);
 
