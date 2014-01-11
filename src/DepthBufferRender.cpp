@@ -114,18 +114,15 @@ __inline int imul14(int x, int y)        // (x * y) >> 14
     return (((long long)x) * ((long long)y)) >> 14;
 }
 
-/*
-int idiv16(int x, int y);        // (x << 16) / y
-#pragma aux idiv16 = \
-    " mov   edx,eax    "\
-    " sar   edx,16     "\
-    " shl   eax,16     "\
-    " idiv  ebx        "\
-    parm [eax] [ebx] modify exact [eax edx] value [eax]
-*/
 __inline int idiv16(int x, int y)        // (x << 16) / y
 {
     //x = (((long long)x) << 16) / ((long long)y);
+ /*
+  eax = x;
+  ebx = y;
+  edx = x;
+  (x << 16) | ()
+   */
 #if !defined(__GNUC__) && !defined(NO_ASM)
   __asm {
         mov   eax, x
@@ -141,6 +138,8 @@ __inline int idiv16(int x, int y)        // (x << 16) / y
     asm ("idivl %[divisor]"
           : "=a" (x), "=d" (reminder)
           : [divisor] "g" (y), "d" (x >> 16), "a" (x << 16));
+#else
+	x = (((long long)x) << 16) / ((long long)y);
 #endif
     return x;
 }
