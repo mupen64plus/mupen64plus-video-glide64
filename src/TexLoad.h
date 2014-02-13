@@ -43,12 +43,12 @@
 #include <string.h>
 #endif // _WIN32
 
-DWORD LoadNone (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
+uint32_t LoadNone (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
 {
     return GR_TEXFMT_ARGB_1555;
 }
 
-typedef DWORD (*texfunc)(unsigned char *, unsigned char *, int, int, int, int, int);
+typedef uint32_t (*texfunc)(unsigned char *, unsigned char *, int, int, int, int, int);
 texfunc load_table [4][5] = {   // [size][format]
     { Load4bSelect, LoadNone, Load4bCI, Load4bIA,  Load4bI},
     { Load8bCI,     LoadNone, Load8bCI, Load8bIA,  Load8bI},

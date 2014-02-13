@@ -38,7 +38,7 @@
 //****************************************************************
 // Size: 2, Format: 0
 
-DWORD Load32bRGBA (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
+uint32_t Load32bRGBA (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
 {
     uint32_t *input_pos;
     uint32_t *output_pos;

@@ -623,7 +623,7 @@ uint32_t Load4bCI (uint8_t *dst, uint8_t *src, int wid_64, int height, int line,
 //
 // ** BY GUGAMAN **
 
-DWORD Load4bIA (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
+uint32_t Load4bIA (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
 {
   if (rdp.tlut_mode != 0)
     return Load4bCI (dst, src, wid_64, height, line, real_width, tile);
@@ -638,7 +638,7 @@ DWORD Load4bIA (unsigned char * dst, unsigned char * src, int wid_64, int height
 //****************************************************************
 // Size: 0, Format: 4
 
-DWORD Load4bI (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
+uint32_t Load4bI (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
 {
   if (rdp.tlut_mode != 0)
     return Load4bCI (dst, src, wid_64, height, line, real_width, tile);
@@ -654,7 +654,7 @@ DWORD Load4bI (unsigned char * dst, unsigned char * src, int wid_64, int height,
 //****************************************************************
 // Size: 0, Format: 0
 
-DWORD Load4bSelect (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
+uint32_t Load4bSelect (unsigned char * dst, unsigned char * src, int wid_64, int height, int line, int real_width, int tile)
 {
   if (rdp.tlut_mode == 0)
     return Load4bI (dst, src, wid_64, height, line, real_width, tile);
