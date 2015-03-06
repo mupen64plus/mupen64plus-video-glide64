@@ -378,8 +378,10 @@ uint32_t Load8bCI (uint8_t *dst, uint8_t *src, int wid_64, int height, int line,
 {
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
-  int ext = (real_width - (wid_64 << 3));
   unsigned short * pal = rdp.pal_8;
+  int ext = (real_width - (wid_64 << 3));
+  if (ext < 0)
+    return 0;
 
   switch (rdp.tlut_mode) {
     case 0: //palette is not used
@@ -411,6 +413,9 @@ uint32_t Load8bIA (uint8_t *dst, uint8_t *src, int wid_64, int height, int line,
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 3));
+  if (ext < 0)
+    return 0;
+
   load8bIA4 (src, dst, wid_64, height, line, ext);
   return /*(0 << 16) | */GR_TEXFMT_ALPHA_INTENSITY_44;
 } 
@@ -428,6 +433,9 @@ uint32_t Load8bI (uint8_t *dst, uint8_t *src, int wid_64, int height, int line, 
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 3));
+  if (ext < 0)
+    return 0;
+
   load8bI (src, dst, wid_64, height, line, ext);
   return /*(0 << 16) | */GR_TEXFMT_ALPHA_8;
 }

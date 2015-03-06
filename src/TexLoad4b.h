@@ -597,6 +597,8 @@ uint32_t Load4bCI (uint8_t *dst, uint8_t *src, int wid_64, int height, int line,
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 4)) << 1;
+  if (ext < 0)
+    return 0;
 
   if (rdp.tlut_mode == 0)
   {
@@ -631,6 +633,9 @@ uint32_t Load4bIA (unsigned char * dst, unsigned char * src, int wid_64, int hei
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 4));
+  if (ext < 0)
+    return 0;
+
   load4bIA (src, dst, wid_64, height, line, ext);
   return /*(0 << 16) | */GR_TEXFMT_ALPHA_INTENSITY_44;
 }
@@ -646,6 +651,9 @@ uint32_t Load4bI (unsigned char * dst, unsigned char * src, int wid_64, int heig
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 4));
+  if (ext < 0)
+    return 0;
+
   load4bI (src, dst, wid_64, height, line, ext);
   
   return /*(0 << 16) | */GR_TEXFMT_ALPHA_INTENSITY_44;

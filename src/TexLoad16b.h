@@ -171,6 +171,8 @@ uint32_t Load16bRGBA (uint8_t *dst, uint8_t *src, int wid_64, int height, int li
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 2)) << 1;
+  if (ext < 0)
+    return 0;
 
   load16bRGBA(src, dst, wid_64, height, line, ext);
 
@@ -187,6 +189,8 @@ uint32_t Load16bIA (uint8_t *dst, uint8_t *src, int wid_64, int height, int line
   if (wid_64 < 1) wid_64 = 1;
   if (height < 1) height = 1;
   int ext = (real_width - (wid_64 << 2)) << 1;
+  if (ext < 0)
+    return 0;
 
   load16bIA(src, dst, wid_64, height, line, ext);
 
