@@ -266,7 +266,7 @@ void GetTexInfo (int id, int tile)
 
     // ** CRC CHECK
 
-  wid_64 = width << (rdp.tiles[tile].size) >> 1;
+    wid_64 = width << (rdp.tiles[tile].size) >> 1;
     if (rdp.tiles[tile].size == 3)
     {
         if (wid_64 & 15) wid_64 += 16;
@@ -332,11 +332,11 @@ void GetTexInfo (int id, int tile)
     {
         if (rdp.tiles[tile].size == 0)
             crc += rdp.pal_8_crc[rdp.tiles[tile].palette];
-    else
+        else
             crc += rdp.pal_256_crc;
     }
 
-    
+
     FRDP ("Done.  CRC is: %08lx.\n", crc);
 
     DWORD flags = (rdp.tiles[tile].clamp_s << 23) | (rdp.tiles[tile].mirror_s << 22) |
@@ -366,7 +366,7 @@ void GetTexInfo (int id, int tile)
 /*  for (t=0; t<num_tmu; t++)
     {
         tex_found[id][t] = -1;      // default, overwrite if found
-        
+
         for (i=0; i<rdp.n_cached[t]; i++)
         {
             cache = &rdp.cache[t][i];
@@ -396,25 +396,25 @@ void GetTexInfo (int id, int tile)
     for (t=0; t<MAX_TMU; t++)
         tex_found[id][t] = -1;
 
-  if (rdp.noise == noise_texture)
-    return;
-  
+    if (rdp.noise == noise_texture)
+        return;
+
     DWORD mod, modcolor, modcolor1, modcolor2, modfactor;
     if (id == 0)
     {
-    mod = cmb.mod_0;
-    modcolor = cmb.modcolor_0;
-    modcolor1 = cmb.modcolor1_0;
-    modcolor2 = cmb.modcolor2_0;
-    modfactor = cmb.modfactor_0;
+        mod = cmb.mod_0;
+        modcolor = cmb.modcolor_0;
+        modcolor1 = cmb.modcolor1_0;
+        modcolor2 = cmb.modcolor2_0;
+        modfactor = cmb.modfactor_0;
     }
     else
     {
-    mod = cmb.mod_1;
-    modcolor = cmb.modcolor_1;
-    modcolor1 = cmb.modcolor1_1;
-    modcolor2 = cmb.modcolor2_1;
-    modfactor = cmb.modfactor_1;
+        mod = cmb.mod_1;
+        modcolor = cmb.modcolor_1;
+        modcolor1 = cmb.modcolor1_1;
+        modcolor2 = cmb.modcolor2_1;
+        modfactor = cmb.modfactor_1;
     }
 
     NODE *node = cachelut[crc>>24];
@@ -447,7 +447,7 @@ void GetTexInfo (int id, int tile)
         }
         node = node->pNext;
     }
-    
+
     RDP (" | | | +- Done.\n | | +- GetTexInfo end\n");
 }
 
