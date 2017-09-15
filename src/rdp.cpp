@@ -2219,8 +2219,8 @@ static void rdp_loadtile()
     else
         size <<= (rdp.tiles[tile].size-1);
 
-  if (offs + line_n*height > BMASK)
-    height = (BMASK - offs) / line_n;
+    if (offs + line_n*height > BMASK)
+        height = (BMASK - offs) / line_n;
 
     int * pDst = (int *) ((uintptr_t)rdp.tmem+(rdp.tiles[tile].t_mem<<3));
     int * pEnd = (int *) ((uintptr_t)rdp.tmem+4096 - (wid_64<<3));
@@ -3365,21 +3365,21 @@ void DetectFrameBufferUsage ()
 #endif // _WIN32
     DWORD a;
 
-  BOOL tidal = FALSE;
-  if (settings.PM && (rdp.copy_ci_index || rdp.frame_buffers[rdp.copy_ci_index].status == ci_copy_self))
-    tidal = TRUE;
+    BOOL tidal = FALSE;
+    if (settings.PM && (rdp.copy_ci_index || rdp.frame_buffers[rdp.copy_ci_index].status == ci_copy_self))
+        tidal = TRUE;
     DWORD ci = rdp.cimg, zi = rdp.zimg; // ci_width = rdp.ci_width;
-  rdp.main_ci = rdp.main_ci_end = rdp.main_ci_bg = rdp.ci_count = 0;
-  rdp.main_ci_index = rdp.copy_ci_index = 0;
+    rdp.main_ci = rdp.main_ci_end = rdp.main_ci_bg = rdp.ci_count = 0;
+    rdp.main_ci_index = rdp.copy_ci_index = 0;
     rdp.zimg_end = 0;
     rdp.tmpzimg = 0;
     rdp.motionblur = FALSE;
-  rdp.main_ci_last_tex_addr = 0;
+    rdp.main_ci_last_tex_addr = 0;
     BOOL previous_ci_was_read = rdp.read_previous_ci;
     rdp.read_previous_ci = FALSE;
-  rdp.read_whole_frame = FALSE;
-  rdp.swap_ci_index = rdp.black_ci_index = -1;
-  SwapOK = TRUE;
+    rdp.read_whole_frame = FALSE;
+    rdp.swap_ci_index = rdp.black_ci_index = -1;
+    SwapOK = TRUE;
 
     // Start executing at the start of the display list
     rdp.pc_i = 0;
@@ -3421,19 +3421,19 @@ void DetectFrameBufferUsage ()
         }
 
     } while (!rdp.halt);
-  SwapOK = TRUE;
-  if (rdp.ci_count > NUMTEXBUF) //overflow
-  {
-    rdp.cimg = ci;
-    rdp.zimg = zi;
-    rdp.num_of_ci = rdp.ci_count;
-    rdp.scale_x = rdp.scale_x_bak;
-    rdp.scale_y = rdp.scale_y_bak;
-    return;
-  }
+    SwapOK = TRUE;
+    if (rdp.ci_count > NUMTEXBUF) //overflow
+    {
+        rdp.cimg = ci;
+        rdp.zimg = zi;
+        rdp.num_of_ci = rdp.ci_count;
+        rdp.scale_x = rdp.scale_x_bak;
+        rdp.scale_y = rdp.scale_y_bak;
+        return;
+    }
 
-  if (rdp.black_ci_index > 0 && rdp.black_ci_index < rdp.copy_ci_index)
-    rdp.frame_buffers[rdp.black_ci_index].status = ci_main;
+    if (rdp.black_ci_index > 0 && rdp.black_ci_index < rdp.copy_ci_index)
+        rdp.frame_buffers[rdp.black_ci_index].status = ci_main;
 
     if (rdp.frame_buffers[rdp.ci_count-1].status == ci_unknown)
     {
@@ -3477,15 +3477,15 @@ void DetectFrameBufferUsage ()
     RDP("detect fb final results: \n");
     for (i = 0; i < rdp.ci_count; i++)
     {
-    FRDP("rdp.frame_buffers[%d].status = %s, addr: %08lx, height: %d\n", i, CIStatus[rdp.frame_buffers[i].status], rdp.frame_buffers[i].addr, rdp.frame_buffers[i].height);
+        FRDP("rdp.frame_buffers[%d].status = %s, addr: %08lx, height: %d\n", i, CIStatus[rdp.frame_buffers[i].status], rdp.frame_buffers[i].addr, rdp.frame_buffers[i].height);
     }
 
     rdp.cimg = ci;
     rdp.zimg = zi;
     rdp.num_of_ci = rdp.ci_count;
-  if (rdp.read_previous_ci && previous_ci_was_read)
-    if (!settings.fb_hires || !rdp.copy_ci_index)
-      rdp.motionblur = TRUE;
+    if (rdp.read_previous_ci && previous_ci_was_read)
+        if (!settings.fb_hires || !rdp.copy_ci_index)
+            rdp.motionblur = TRUE;
     if (rdp.motionblur || settings.fb_hires || (rdp.frame_buffers[rdp.copy_ci_index].status == ci_aux_copy))
     {
         rdp.scale_x = rdp.scale_x_bak;
@@ -3493,7 +3493,7 @@ void DetectFrameBufferUsage ()
     }
 
     if ((rdp.read_previous_ci || previous_ci_was_read) && !rdp.copy_ci_index)
-      rdp.read_whole_frame = TRUE;
+        rdp.read_whole_frame = TRUE;
     if (rdp.read_whole_frame)
     {
       if (settings.fb_hires && !settings.fb_ignore_previous)
@@ -3505,14 +3505,14 @@ void DetectFrameBufferUsage ()
         }
       }
       else
-    {
-      if (rdp.motionblur)
       {
-        if (settings.fb_motionblur)
+        if (rdp.motionblur)
+        {
+          if (settings.fb_motionblur)
             CopyFrameBuffer();
-        else
-          memset(gfx.RDRAM+rdp.cimg, 0, rdp.ci_width*rdp.ci_height*rdp.ci_size);
-      }
+          else
+            memset(gfx.RDRAM+rdp.cimg, 0, rdp.ci_width*rdp.ci_height*rdp.ci_size);
+        }
         else //if (ci_width == rdp.frame_buffers[rdp.main_ci_index].width)
         {
           if (rdp.maincimg[0].height > 65) //for 1080

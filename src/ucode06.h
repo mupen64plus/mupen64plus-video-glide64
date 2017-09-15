@@ -370,16 +370,16 @@ void DrawImage (DRAWIMAGE *d)
     
     if (fullscreen)
     {
-        
+
         //grFogMode (GR_FOG_DISABLE);
-        
-    grFogMode (GR_FOG_DISABLE);
+
+        grFogMode (GR_FOG_DISABLE);
         if (rdp.zsrc == 1 && (rdp.othermode_l & 0x00000030))  // othermode check makes sure it
             // USES the z-buffer.  Otherwise it returns bad (unset) values for lot and telescope
             //in zelda:mm.
         {
             RDP("Background uses depth compare\n");
-      Z = ScaleZ(rdp.prim_depth);
+            Z = ScaleZ(rdp.prim_depth);
             grDepthBufferFunction (GR_CMP_LEQUAL);
             grDepthMask (FXTRUE);
         }
@@ -389,40 +389,39 @@ void DrawImage (DRAWIMAGE *d)
             grDepthBufferFunction (GR_CMP_ALWAYS);
             grDepthMask (FXFALSE);
         }
-        
-        //      grClipWindow (0, 0, settings.res_x, settings.res_y);
-    if (rdp.ci_width == 512 && !no_dlist)
-      //          grClipWindow (0, 0, (DWORD)(d->frameW * rdp.scale_x), (DWORD)(d->frameH * rdp.scale_y));
-      grClipWindow (0, 0, settings.scr_res_x, settings.scr_res_y);
-    else
-        grClipWindow (rdp.scissor.ul_x, rdp.scissor.ul_y, rdp.scissor.lr_x, rdp.scissor.lr_y);
-        
+
+//      grClipWindow (0, 0, settings.res_x, settings.res_y);
+        if (rdp.ci_width == 512 && !no_dlist)
+//          grClipWindow (0, 0, (DWORD)(d->frameW * rdp.scale_x), (DWORD)(d->frameH * rdp.scale_y));
+            grClipWindow (0, 0, settings.scr_res_x, settings.scr_res_y);
+        else
+            grClipWindow (rdp.scissor.ul_x, rdp.scissor.ul_y, rdp.scissor.lr_x, rdp.scissor.lr_y);
+
         grCullMode (GR_CULL_DISABLE);
-        //      if (!settings.PPL)
+//      if (!settings.PPL)
         if (rdp.cycle_mode == 2)
         {
             rdp.allow_combine = 0;
-      cmb.tmu0_func = GR_COMBINE_FUNCTION_LOCAL;
-      cmb.tmu0_a_func = GR_COMBINE_FUNCTION_LOCAL;
-            
+            cmb.tmu0_func = GR_COMBINE_FUNCTION_LOCAL;
+            cmb.tmu0_a_func = GR_COMBINE_FUNCTION_LOCAL;
+
             grColorCombine (GR_COMBINE_FUNCTION_SCALE_OTHER,
-                GR_COMBINE_FACTOR_ONE,
-                GR_COMBINE_LOCAL_NONE,
-                GR_COMBINE_OTHER_TEXTURE,
-                FXFALSE);
+                    GR_COMBINE_FACTOR_ONE,
+                    GR_COMBINE_LOCAL_NONE,
+                    GR_COMBINE_OTHER_TEXTURE,
+                    FXFALSE);
             grAlphaCombine (GR_COMBINE_FUNCTION_SCALE_OTHER,
-                GR_COMBINE_FACTOR_ONE,
-                GR_COMBINE_LOCAL_NONE,
-                GR_COMBINE_OTHER_TEXTURE,
-                FXFALSE);
+                    GR_COMBINE_FACTOR_ONE,
+                    GR_COMBINE_LOCAL_NONE,
+                    GR_COMBINE_OTHER_TEXTURE,
+                    FXFALSE);
             grConstantColorValue (0xFFFFFFFF);
             grAlphaBlendFunction (GR_BLEND_ONE, // use alpha compare, but not T0 alpha
-                GR_BLEND_ZERO,
-                GR_BLEND_ZERO,
-                GR_BLEND_ZERO);
+                    GR_BLEND_ZERO,
+                    GR_BLEND_ZERO,
+                    GR_BLEND_ZERO);
             rdp.update |= UPDATE_COMBINE;
         }
-        
     }
     // Texture ()
     rdp.cur_tile = 0;
@@ -1157,28 +1156,28 @@ static void uc6_draw_polygons (VERTEX v[4])
 static void uc6_obj_rectangle ()
 {
     //  RDP ("uc6:obj_rectangle\n");
-    
+
     DWORD addr = segoffset(rdp.cmd1) >> 1;
-    
+
     float objX      = ((short*)gfx.RDRAM)[(addr+0)^1] / 4.0f;       // 0
     float scaleW    = ((WORD *)gfx.RDRAM)[(addr+1)^1] / 1024.0f;    // 1
     short imageW    = ((short*)gfx.RDRAM)[(addr+2)^1] >> 5;         // 2, 3 is padding
     float objY      = ((short*)gfx.RDRAM)[(addr+4)^1] / 4.0f;       // 4
     float scaleH    = ((WORD *)gfx.RDRAM)[(addr+5)^1] / 1024.0f;    // 5
     short imageH    = ((short*)gfx.RDRAM)[(addr+6)^1] >> 5;         // 6, 7 is padding
-    
+
     WORD  imageStride   = ((WORD *)gfx.RDRAM)[(addr+8)^1];          // 8
     WORD  imageAdrs     = ((WORD *)gfx.RDRAM)[(addr+9)^1];          // 9
     BYTE  imageFmt      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+0)^3];    // 10
     BYTE  imageSiz      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+1)^3];    // |
     BYTE  imagePal      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+2)^3];    // 11
     BYTE  imageFlags    = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+3)^3];    // |
-  
-  if (imageW < 0) 
-    imageW = (short)rdp.scissor_o.lr_x - (short)objX - imageW;
-  if (imageH < 0) 
-    imageH = (short)rdp.scissor_o.lr_y - (short)objY - imageH;
-    
+
+    if (imageW < 0)
+        imageW = (short)rdp.scissor_o.lr_x - (short)objX - imageW;
+    if (imageH < 0)
+        imageH = (short)rdp.scissor_o.lr_y - (short)objY - imageH;
+
     FRDP ("uc6:obj_rectangle #%d, #%d\n"
         "objX: %f, scaleW: %f, imageW: %d\n"
         "objY: %f, scaleH: %f, imageH: %d\n"
@@ -1194,7 +1193,7 @@ static void uc6_obj_rectangle ()
         RDP("Texture was not loaded! return\n");
         return;
     }
-    
+
     // SetTile ()
     TILE *tile = &rdp.tiles[0];
     tile->format = imageFmt;    // RGBA
@@ -1415,34 +1414,34 @@ static void uc6_obj_rendermode ()
 void uc6_obj_rectangle_r ()
 {
     //  RDP ("uc6:obj_rectangle_r\n");
-    
+
     DWORD addr = segoffset(rdp.cmd1) >> 1;
-    
+
     float objX      = ((short*)gfx.RDRAM)[(addr+0)^1] / 4.0f;       // 0
     float scaleW    = ((WORD *)gfx.RDRAM)[(addr+1)^1] / 1024.0f;    // 1
     short imageW    = ((short*)gfx.RDRAM)[(addr+2)^1] >> 5;         // 2, 3 is padding
     float objY      = ((short*)gfx.RDRAM)[(addr+4)^1] / 4.0f;       // 4
     float scaleH    = ((WORD *)gfx.RDRAM)[(addr+5)^1] / 1024.0f;    // 5
     short imageH    = ((short*)gfx.RDRAM)[(addr+6)^1] >> 5;         // 6, 7 is padding
-    
+
     WORD  imageStride   = ((WORD *)gfx.RDRAM)[(addr+8)^1];          // 8
     WORD  imageAdrs     = ((WORD *)gfx.RDRAM)[(addr+9)^1];          // 9
     BYTE  imageFmt      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+0)^3];    // 10
     BYTE  imageSiz      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+1)^3];    // |
     BYTE  imagePal      = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+2)^3];    // 11
     BYTE  imageFlags    = ((BYTE *)gfx.RDRAM)[(((addr+10)<<1)+3)^3];    // |
-  
-  if (imageW < 0) 
-    imageW = (short)rdp.scissor_o.lr_x - (short)objX - imageW;
-  if (imageH < 0) 
-    imageH = (short)rdp.scissor_o.lr_y - (short)objY - imageH;
-    
+
+    if (imageW < 0)
+        imageW = (short)rdp.scissor_o.lr_x - (short)objX - imageW;
+    if (imageH < 0)
+        imageH = (short)rdp.scissor_o.lr_y - (short)objY - imageH;
+
     FRDP ("uc6:obj_rectangle_r #%d, #%d\n"
         "objX: %f, scaleW: %f, imageW: %d\n"
         "objY: %f, scaleH: %f, imageH: %d\n"
         "size: %d, format: %d\n", rdp.tri_n, rdp.tri_n+1,
         objX, scaleW, imageW, objY, scaleH, imageH, imageSiz, imageFmt);
-    
+
     if (imageFmt == 1) //YUV
     {
         float ul_x = objX/mat_2d.BaseScaleX + mat_2d.X;
