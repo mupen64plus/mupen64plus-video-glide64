@@ -344,22 +344,6 @@ void rdp_reset ()
 #  define WordEndian(address)  (address^2)
 # endif
 # define _Read8Endian(array, address) (*((BYTE *)(array+ByteEndian(address))))
-__inline static DWORD searchrdram(const char *ct)
-{
-    DWORD pos, pos2;
-    const char *t;
-    t = ct;
-    for (pos=0; pos<0x400000; pos++) {
-        for (pos2=pos, t=ct; *ct != 0; t++, pos2++) {
-            if (_Read8Endian(gfx.RDRAM, pos2) != *t)
-                break;
-            else
-                if (*(t + 1) == 0)
-                    return pos;
-        }
-    }
-    return 0;
-}
 
 void microcheck ()
 {
