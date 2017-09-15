@@ -133,9 +133,9 @@ static void mod_col_inter_col1_using_tex (WORD *dst, int size, DWORD color0, DWO
         percent_r = ((col >> 8) & 0xF) / 15.0f;
         percent_g = ((col >> 4) & 0xF) / 15.0f;
         percent_b = (col & 0xF) / 15.0f;
-        r = min(15, (BYTE)((1.0f-percent_r) * cr0 + percent_r * cr1));
-        g = min(15, (BYTE)((1.0f-percent_g) * cg0 + percent_g * cg1));
-        b = min(15, (BYTE)((1.0f-percent_b) * cb0 + percent_b * cb1));
+        r = std::min((BYTE)15, (BYTE)((1.0f-percent_r) * cr0 + percent_r * cr1));
+        g = std::min((BYTE)15, (BYTE)((1.0f-percent_g) * cg0 + percent_g * cg1));
+        b = std::min((BYTE)15, (BYTE)((1.0f-percent_b) * cb0 + percent_b * cb1));
         *(dst++) = a | (r << 8) | (g << 4) | b;
     }
 }
