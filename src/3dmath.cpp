@@ -129,8 +129,8 @@ void calc_sphere (VERTEX *v)
   int s_scale, t_scale;
   if (settings.chopper)
   {
-    s_scale = min(rdp.tiles[rdp.cur_tile].org_s_scale >> 6, rdp.tiles[rdp.cur_tile].lr_s);
-    t_scale = min(rdp.tiles[rdp.cur_tile].org_t_scale >> 6, rdp.tiles[rdp.cur_tile].lr_t);
+    s_scale = std::min(rdp.tiles[rdp.cur_tile].org_s_scale >> 6, static_cast<int>(rdp.tiles[rdp.cur_tile].lr_s));
+    t_scale = std::min(rdp.tiles[rdp.cur_tile].org_t_scale >> 6, static_cast<int>(rdp.tiles[rdp.cur_tile].lr_t));
   }
   else
   {

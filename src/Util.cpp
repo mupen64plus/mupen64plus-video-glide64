@@ -1247,7 +1247,7 @@ void clip_tri (WORD linew)
                 if (settings.ucode == 5)
                     for (i=0; i<n; i++)
                         if (rdp.vtxbuf[i].z < -1000.0f)  return;//rdp.vtxbuf[i].z = 0.0f;
-                        DepthBuffer(rdp.vtx_buffer?(vtx_list2):(vtx_list1), n);
+                DepthBuffer(rdp.vtx_buffer?(vtx_list2):(vtx_list1), n);
                 grDrawVertexArray (GR_TRIANGLE_FAN, n, rdp.vtx_buffer?(&vtx_list2):(&vtx_list1));
             }
             //grDrawVertexArrayContiguous (GR_TRIANGLE_FAN, n, rdp.vtxbuf, sizeof(VERTEX));

@@ -143,20 +143,20 @@ static HIRES_COLOR_IMAGE * AllocateTextureBuffer(COLOR_IMAGE & cimage)
   else
     texbuf.info.format = GR_TEXFMT_RGB_565;
 
-    float lr_u = 256.0f * texbuf.scr_width / (float)tex_size;// + 1.0f;
-    float lr_v = 256.0f * texbuf.scr_height / (float)tex_size;// + 1.0f;
-    texbuf.tile = 0;
-    texbuf.tile_uls = 0;
-    texbuf.tile_ult = 0;
-    texbuf.u_shift = 0;
-    texbuf.v_shift = 0;
-    texbuf.drawn = FALSE;
-    texbuf.clear = FALSE;
-    texbuf.info.data = NULL;
-    texbuf.u_scale = lr_u / (float)(texbuf.width);
-    texbuf.v_scale = lr_v / (float)(texbuf.height);
+  float lr_u = 256.0f * texbuf.scr_width / (float)tex_size;// + 1.0f;
+  float lr_v = 256.0f * texbuf.scr_height / (float)tex_size;// + 1.0f;
+  texbuf.tile = 0;
+  texbuf.tile_uls = 0;
+  texbuf.tile_ult = 0;
+  texbuf.u_shift = 0;
+  texbuf.v_shift = 0;
+  texbuf.drawn = FALSE;
+  texbuf.clear = FALSE;
+  texbuf.info.data = NULL;
+  texbuf.u_scale = lr_u / (float)(texbuf.width);
+  texbuf.v_scale = lr_v / (float)(texbuf.height);
 
-    FRDP("\nAllocateTextureBuffer. width: %d, height: %d, scr_width: %f, scr_height: %f, vi_width: %f, vi_height:%f, scale_x: %f, scale_y: %f, lr_u: %f, lr_v: %f, u_scale: %f, v_scale: %f\n", texbuf.width, texbuf.height, texbuf.scr_width, texbuf.scr_height, rdp.vi_width, rdp.vi_height, rdp.scale_x, rdp.scale_y, lr_u, lr_v, texbuf.u_scale, texbuf.v_scale);
+  FRDP("\nAllocateTextureBuffer. width: %d, height: %d, scr_width: %f, scr_height: %f, vi_width: %f, vi_height:%f, scale_x: %f, scale_y: %f, lr_u: %f, lr_v: %f, u_scale: %f, v_scale: %f\n", texbuf.width, texbuf.height, texbuf.scr_width, texbuf.scr_height, rdp.vi_width, rdp.vi_height, rdp.scale_x, rdp.scale_y, lr_u, lr_v, texbuf.u_scale, texbuf.v_scale);
 
   DWORD required = grTexCalcMemRequired(texbuf.info.smallLodLog2, texbuf.info.largeLodLog2, 
                                          texbuf.info.aspectRatioLog2, texbuf.info.format);

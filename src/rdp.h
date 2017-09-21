@@ -40,17 +40,14 @@
 #ifndef RDP_H
 #define RDP_H
 
+#include <algorithm>
+
 #ifdef _WIN32
 #include <windows.h>
 #else // _WIN32
 #include "winlnxdefs.h"
 #endif // _WIN32
 #include "glide.h"
-
-//#ifdef GCC
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-//#endif
 
 extern char out_buf[2048];
 
@@ -749,7 +746,7 @@ __inline void CalculateFog (VERTEX *v)
 {
     if (rdp.flags & FOG_ENABLED) 
     {
-        v->f = min(255.0f, max(0.0f, v->z_w * rdp.fog_multiplier + rdp.fog_offset));    
+        v->f = std::min(255.0f, std::max(0.0f, v->z_w * rdp.fog_multiplier + rdp.fog_offset));
         v->a = (BYTE)v->f;
     }
     else
