@@ -522,10 +522,10 @@ static void DrawFrameBufferToScreen()
     GR_BLEND_ZERO);
   rdp.update |= UPDATE_COMBINE;
 
-  float scale_x_dst = (float)settings.scr_res_x / rdp.vi_width;//(float)max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
-  float scale_y_dst = (float)settings.scr_res_y / rdp.vi_height;//(float)max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
-  float scale_x_src = (float)rdp.vi_width / (float)settings.scr_res_x;//(float)max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
-  float scale_y_src = (float)rdp.vi_height / (float)settings.scr_res_y;//(float)max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
+  float scale_x_dst = (float)settings.scr_res_x / rdp.vi_width;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
+  float scale_y_dst = (float)settings.scr_res_y / rdp.vi_height;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
+  float scale_x_src = (float)rdp.vi_width / (float)settings.scr_res_x;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
+  float scale_y_src = (float)rdp.vi_height / (float)settings.scr_res_y;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
   int src_width = d_lr_x - d_ul_x + 1;
   int src_height = d_lr_y - d_ul_y + 1;
   int dst_width, dst_height, ul_x, ul_y;
@@ -746,8 +746,8 @@ static void CopyFrameBuffer (GrBuffer_t buffer = GR_BUFFER_BACKBUFFER)
     }
     else
     {
-      float scale_x = (float)settings.scr_res_x / rdp.vi_width;//(float)max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
-      float scale_y = (float)settings.scr_res_y / rdp.vi_height;//(float)max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
+      float scale_x = (float)settings.scr_res_x / rdp.vi_width;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].width, rdp.ci_width);
+      float scale_y = (float)settings.scr_res_y / rdp.vi_height;//(float)std::max(rdp.frame_buffers[rdp.main_ci_index].height, rdp.ci_lower_bound);
 
       FRDP("width: %d, height: %d, ul_y: %d, lr_y: %d, scale_x: %f, scale_y: %f, ci_width: %d, ci_height: %d\n",width, height, rdp.ci_upper_bound, rdp.ci_lower_bound, scale_x, scale_y, rdp.ci_width, rdp.ci_height);
       GrLfbInfo_t info;
@@ -943,7 +943,7 @@ EXPORT void CALL ProcessDList(void)
 
     rdp.model_i = 0; // 0 matrices so far in stack
     //stack_size can be less then 32! Important for Silicon Vally. Thanks Orkin!
-    rdp.model_stack_size = min(32, (*(DWORD*)(gfx.DMEM+0x0FE4))>>6);
+    rdp.model_stack_size = std::min((DWORD) 32, (*(DWORD*)(gfx.DMEM+0x0FE4))>>6);
     if (rdp.model_stack_size == 0)
       rdp.model_stack_size = 32;
   rdp.fb_drawn = rdp.fb_drawn_front = FALSE;
@@ -2284,10 +2284,10 @@ static void rdp_fillrect()
             rdp.update |= UPDATE_ZBUF_ENABLED;
             if (settings.fb_depth_clear)
             {
-        ul_x = min(max(ul_x, rdp.scissor_o.ul_x), rdp.scissor_o.lr_x);
-        lr_x = min(max(lr_x, rdp.scissor_o.ul_x), rdp.scissor_o.lr_x);
-        ul_y = min(max(ul_y, rdp.scissor_o.ul_y), rdp.scissor_o.lr_y);
-        lr_y = min(max(lr_y, rdp.scissor_o.ul_y), rdp.scissor_o.lr_y);
+        ul_x = std::min(std::max(ul_x, rdp.scissor_o.ul_x), rdp.scissor_o.lr_x);
+        lr_x = std::min(std::max(lr_x, rdp.scissor_o.ul_x), rdp.scissor_o.lr_x);
+        ul_y = std::min(std::max(ul_y, rdp.scissor_o.ul_y), rdp.scissor_o.lr_y);
+        lr_y = std::min(std::max(lr_y, rdp.scissor_o.ul_y), rdp.scissor_o.lr_y);
         //FIXME:unused? DWORD zi_height = lr_y - ul_y - 1;
         //              rdp.zi_nb_pixels = rdp.zi_width * zi_height;
         rdp.zi_lry = lr_y - 1;
@@ -2349,10 +2349,10 @@ static void rdp_fillrect()
         rdp.scissor.lr_y);
 
     // KILL the floating point error with 0.01f
-    DWORD s_ul_x = (DWORD)min(max(ul_x * rdp.scale_x + rdp.offset_x + 0.01f, rdp.scissor.ul_x), rdp.scissor.lr_x);
-    DWORD s_lr_x = (DWORD)min(max(lr_x * rdp.scale_x + rdp.offset_x + 0.01f, rdp.scissor.ul_x), rdp.scissor.lr_x);
-    DWORD s_ul_y = (DWORD)min(max(ul_y * rdp.scale_y + rdp.offset_y + 0.01f, rdp.scissor.ul_y), rdp.scissor.lr_y);
-    DWORD s_lr_y = (DWORD)min(max(lr_y * rdp.scale_y + rdp.offset_y + 0.01f, rdp.scissor.ul_y), rdp.scissor.lr_y);
+    DWORD s_ul_x = std::min(std::max((DWORD) (ul_x * rdp.scale_x + rdp.offset_x + 0.01f), rdp.scissor.ul_x), rdp.scissor.lr_x);
+    DWORD s_lr_x = std::min(std::max((DWORD) (lr_x * rdp.scale_x + rdp.offset_x + 0.01f), rdp.scissor.ul_x), rdp.scissor.lr_x);
+    DWORD s_ul_y = std::min(std::max((DWORD) (ul_y * rdp.scale_y + rdp.offset_y + 0.01f), rdp.scissor.ul_y), rdp.scissor.lr_y);
+    DWORD s_lr_y = std::min(std::max((DWORD) (lr_y * rdp.scale_y + rdp.offset_y + 0.01f), rdp.scissor.ul_y), rdp.scissor.lr_y);
 
     if (s_lr_x < 0.0f) s_lr_x = 0;
     if (s_lr_y < 0.0f) s_lr_y = 0;
@@ -2520,7 +2520,7 @@ static void rdp_setprimcolor()
 {
   rdp.prim_color = rdp.cmd1;
     rdp.prim_lodmin = (rdp.cmd0 >> 8) & 0xFF;
-  rdp.prim_lodfrac = max(rdp.cmd0 & 0xFF, rdp.prim_lodmin);
+  rdp.prim_lodfrac = std::max(rdp.cmd0 & 0xFF, rdp.prim_lodmin);
     rdp.update |= UPDATE_COMBINE;
 
     FRDP("setprimcolor: %08lx, lodmin: %d, lodfrac: %d\n", rdp.cmd1, rdp.prim_lodmin,
@@ -2928,7 +2928,7 @@ static void rdp_setcolorimage()
   if (rdp.zimg == rdp.cimg)
   {
     rdp.zi_width = rdp.ci_width;
-    //    int zi_height = min((int)rdp.zi_width*3/4, (int)rdp.vi_height);
+    //    int zi_height = std::min((int)rdp.zi_width*3/4, (int)rdp.vi_height);
     //    rdp.zi_words = rdp.zi_width * zi_height;
   }
   DWORD format = (rdp.cmd0 >> 21) & 0x7;
@@ -3249,10 +3249,10 @@ EXPORT void CALL FBWrite(unsigned int addr, unsigned int size)
     DWORD shift_l = (a-rdp.cimg) >> 1;
     DWORD shift_r = shift_l+2;
 
-    d_ul_x = min(d_ul_x, shift_l%rdp.ci_width);
-    d_ul_y = min(d_ul_y, shift_l/rdp.ci_width);
-    d_lr_x = max(d_lr_x, shift_r%rdp.ci_width);
-    d_lr_y = max(d_lr_y, shift_r/rdp.ci_width);
+    d_ul_x = std::min(d_ul_x, shift_l%rdp.ci_width);
+    d_ul_y = std::min(d_ul_y, shift_l/rdp.ci_width);
+    d_lr_x = std::max(d_lr_x, shift_r%rdp.ci_width);
+    d_lr_y = std::max(d_lr_y, shift_r/rdp.ci_width);
 }
 
 
@@ -3654,7 +3654,7 @@ EXPORT void CALL ProcessRDPList(void)
 
     rdp.model_i = 0; // 0 matrices so far in stack
     //stack_size can be less then 32! Important for Silicon Vally. Thanks Orkin!
-    rdp.model_stack_size = min(32, (*(DWORD*)(gfx.DMEM+0x0FE4))>>6);
+    rdp.model_stack_size = std::min((DWORD) 32, (*(DWORD*)(gfx.DMEM+0x0FE4))>>6);
     if (rdp.model_stack_size == 0)
       rdp.model_stack_size = 32;
   rdp.fb_drawn = rdp.fb_drawn_front = FALSE;

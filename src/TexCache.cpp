@@ -171,28 +171,28 @@ void GetTexInfo (int id, int tile)
         if ((rdp.tiles[tile].clamp_s && tile_width <= 256) || (mask_width > 256))
         {
             // loading width
-            width = min(mask_width, tile_width);
+            width = std::min(mask_width, tile_width);
             // actual width
             rdp.tiles[tile].width = tile_width;
         }
         else
         {
             // wrap all the way
-            width = min(mask_width, tile_width);    // changed from mask_width only
+            width = std::min(mask_width, tile_width);    // changed from mask_width only
             rdp.tiles[tile].width = width;
         }
 
         if ((rdp.tiles[tile].clamp_t && tile_height <= 256) || (mask_height > 256))
         {
             // loading height
-            height = min(mask_height, tile_height);
+            height = std::min(mask_height, tile_height);
             // actual height
             rdp.tiles[tile].height = tile_height;
         }
         else
         {
             // wrap all the way
-            height = min(mask_height, tile_height);
+            height = std::min(mask_height, tile_height);
             rdp.tiles[tile].height = height;
         }
     }
@@ -206,7 +206,7 @@ void GetTexInfo (int id, int tile)
         if ((rdp.tiles[tile].clamp_s && tile_width <= 256) || (mask_width > 256))
         {
             // loading width
-            width = min(mask_width, tile_width);
+            width = std::min(mask_width, tile_width);
             // actual width
             rdp.tiles[tile].width = tile_width;
         }
@@ -220,7 +220,7 @@ void GetTexInfo (int id, int tile)
         if ((rdp.tiles[tile].clamp_t && tile_height <= 256) || (mask_height > 256))
         {
             // loading height
-            height = min(mask_height, tile_height);
+            height = std::min(mask_height, tile_height);
             // actual height
             rdp.tiles[tile].height = tile_height;
         }
@@ -280,7 +280,7 @@ void GetTexInfo (int id, int tile)
 
     // Texture too big for tmem & needs to wrap? (trees in mm)
 
-    if (settings.wrap_big_tex && (rdp.tiles[tile].t_mem + min(height, tile_height) * (rdp.tiles[tile].line<<3) > 4096))
+    if (settings.wrap_big_tex && (rdp.tiles[tile].t_mem + std::min(height, tile_height) * (rdp.tiles[tile].line<<3) > 4096))
     {
         RDP ("TEXTURE WRAPS TMEM!!! ");
 
@@ -318,7 +318,7 @@ void GetTexInfo (int id, int tile)
         crc = 0xFFFFFFFF;
 //        unsigned __int64 * addr = (unsigned __int64 *)&rdp.tmem[rdp.tiles[tile].t_mem];
         BYTE * addr = rdp.tmem + (rdp.tiles[tile].t_mem<<3);
-        DWORD line2 = max(line,1);
+        DWORD line2 = std::max(line,1);
         line2 <<= 3;
         for (int y = 0; y < height; y++)
         {
@@ -975,7 +975,7 @@ void LoadTex (int id, int tmu)
     }
 
     // Calculate the maximum size
-    int size_max = max (size_x, size_y);
+    int size_max = std::max(size_x, size_y);
     DWORD real_x=size_max, real_y=size_max;
     switch (size_max)
     {
@@ -1198,11 +1198,11 @@ void LoadTex (int id, int tmu)
 
         int min_x, min_y;
         if (rdp.tiles[td].mask_s != 0)
-            min_x = min((int)real_x, 1<<rdp.tiles[td].mask_s);
+            min_x = std::min((int)real_x, 1<<rdp.tiles[td].mask_s);
         else
             min_x = real_x;
         if (rdp.tiles[td].mask_t != 0)
-            min_y  = min((int)real_y, 1<<rdp.tiles[td].mask_t);
+            min_y  = std::min((int)real_y, 1<<rdp.tiles[td].mask_t);
         else
             min_y = real_y;
 

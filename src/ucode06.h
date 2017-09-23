@@ -38,9 +38,6 @@
 
 // STANDARD DRAWIMAGE - draws a 2d image based on the following structure
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
-
 void uc6_sprite2d ();
 
 typedef struct DRAWIMAGE_t {
@@ -170,8 +167,8 @@ void DrawDepthImage (DRAWIMAGE *d)
   float scale_y_src = 1.0f/rdp.scale_y;
   int src_width = d->imageW;
   int src_height = d->imageH;
-  int dst_width = min(int(src_width*scale_x_dst), (int)settings.scr_res_x);
-  int dst_height = min(int(src_height*scale_y_dst), (int)settings.scr_res_y);
+  int dst_width = std::min(int(src_width*scale_x_dst), (int)settings.scr_res_x);
+  int dst_height = std::min(int(src_height*scale_y_dst), (int)settings.scr_res_y);
 
 #if 1
   if (0 && grFramebufferCopyExt) {
@@ -459,7 +456,7 @@ void DrawImage (DRAWIMAGE *d)
         cur_u = min_256_u + 1;
         
         // calculate intersection with this point
-        nlr_v = min (min (cur_wrap_v*d->imageH, (cur_v<<y_shift)), lr_v);
+        nlr_v = std::min(std::min(cur_wrap_v*d->imageH, (cur_v<<y_shift)), lr_v);
         nlr_y = my * nlr_v + by;
         
         nul_u = ul_u;
@@ -471,7 +468,7 @@ void DrawImage (DRAWIMAGE *d)
         while (1)
         {
             // calculate intersection with this point
-            nlr_u = min (min (cur_wrap_u*d->imageW, (cur_u<<x_shift)), lr_u);
+            nlr_u = std::min(std::min(cur_wrap_u*d->imageW, (cur_u<<x_shift)), lr_u);
             nlr_x = mx * nlr_u + bx;
             
             // ** Load the texture, constant portions have been set above
@@ -901,11 +898,11 @@ static void draw_splitted_triangle(VERTEX **vtx)
     int index,i,j, min_256,max_256, cur_256,left_256,right_256;
     float percent;
     
-    min_256 = min((int)vtx[0]->u0,(int)vtx[1]->u0); // bah, don't put two mins on one line
-    min_256 = min(min_256,(int)vtx[2]->u0) >> 8;  // or it will be calculated twice
+    min_256 = std::min((int)vtx[0]->u0,(int)vtx[1]->u0); // bah, don't put two mins on one line
+    min_256 = std::min(min_256,(int)vtx[2]->u0) >> 8;  // or it will be calculated twice
     
-    max_256 = max((int)vtx[0]->u0,(int)vtx[1]->u0); // not like it makes much difference
-    max_256 = max(max_256,(int)vtx[2]->u0) >> 8;  // anyway :P
+    max_256 = std::max((int)vtx[0]->u0,(int)vtx[1]->u0); // not like it makes much difference
+    max_256 = std::max(max_256,(int)vtx[2]->u0) >> 8;  // anyway :P
     
     for (cur_256=min_256; cur_256<=max_256; cur_256++)
     {

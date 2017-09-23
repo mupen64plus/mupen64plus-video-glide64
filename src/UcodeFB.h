@@ -336,7 +336,7 @@ static void fb_setcolorimage()
   {
     if (rdp.cimg == rdp.main_ci) //switched to main fb again 
     {
-            cur_fb.height = max(cur_fb.height, rdp.frame_buffers[rdp.main_ci_index].height);
+            cur_fb.height = std::max(cur_fb.height, rdp.frame_buffers[rdp.main_ci_index].height);
       rdp.main_ci_index = rdp.ci_count;
         rdp.main_ci_end = rdp.cimg + ((cur_fb.width * cur_fb.height) << cur_fb.size >> 1);
         cur_fb.status = ci_main;
