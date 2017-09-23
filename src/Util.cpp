@@ -51,8 +51,7 @@
 #include <stdlib.h>
 #endif // _WIN32
 
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
+#include <algorithm>
 
 #define Vj rdp.vtxbuf2[j]
 #define Vi rdp.vtxbuf2[i]
@@ -447,11 +446,11 @@ void DrawTri (VERTEX **vtx, WORD linew)
       int index,i,j, min_256,max_256, cur_256,left_256,right_256;
       float percent;
       
-      min_256 = min((int)vtx[0]->u0,(int)vtx[1]->u0); // bah, don't put two mins on one line
-      min_256 = min(min_256,(int)vtx[2]->u0) >> 8;  // or it will be calculated twice
+      min_256 = std::min((int)vtx[0]->u0,(int)vtx[1]->u0); // bah, don't put two mins on one line
+      min_256 = std::min(min_256,(int)vtx[2]->u0) >> 8;  // or it will be calculated twice
       
-      max_256 = max((int)vtx[0]->u0,(int)vtx[1]->u0); // not like it makes much difference
-      max_256 = max(max_256,(int)vtx[2]->u0) >> 8;  // anyway :P
+      max_256 = std::max((int)vtx[0]->u0,(int)vtx[1]->u0); // not like it makes much difference
+      max_256 = std::max(max_256,(int)vtx[2]->u0) >> 8;  // anyway :P
       
       for (cur_256=min_256; cur_256<=max_256; cur_256++)
       {
@@ -833,11 +832,11 @@ static void CalculateLOD(VERTEX **v, int n)
         lodFactor = lodFactor / n;
     }
     long ilod = (long)lodFactor;
-    int lod_tile = min((int)(log((double)ilod)/log(2.0)), rdp.cur_tile + rdp.mipmap_level);
+    int lod_tile = std::min((int)(log((double)ilod)/log(2.0)), rdp.cur_tile + rdp.mipmap_level);
     float lod_fraction = 1.0f;
     if (lod_tile < rdp.cur_tile + rdp.mipmap_level)
     {
-        lod_fraction = max((float)modf(lodFactor / pow(2.0f,lod_tile),&intptr), rdp.prim_lodmin / 255.0f);
+        lod_fraction = std::max((float)modf(lodFactor / pow(2.0f,lod_tile),&intptr), rdp.prim_lodmin / 255.0f);
     }
     float detailmax;
     if (cmb.dc0_detailmax < 0.5f)
@@ -1162,7 +1161,7 @@ void clip_tri (WORD linew)
     {
         for (i = 0; i < n; i++)
         {
-            rdp.vtxbuf[i].f = 1.0f/max(16.0f,rdp.vtxbuf[i].f);
+            rdp.vtxbuf[i].f = 1.0f/std::max(16.0f,rdp.vtxbuf[i].f);
         }
     }
     
@@ -1339,10 +1338,10 @@ void update_scissor ()
         rdp.update ^= UPDATE_SCISSOR;
         
         // KILL the floating point error with 0.01f
-        rdp.scissor.ul_x = (DWORD) max(min((rdp.scissor_o.ul_x * rdp.scale_x + rdp.offset_x + 0.01f),settings.res_x),0);
-        rdp.scissor.lr_x = (DWORD) max(min((rdp.scissor_o.lr_x * rdp.scale_x + rdp.offset_x + 0.01f),settings.res_x),0);
-        rdp.scissor.ul_y = (DWORD) max(min((rdp.scissor_o.ul_y * rdp.scale_y + rdp.offset_y + 0.01f),settings.res_y),0);
-        rdp.scissor.lr_y = (DWORD) max(min((rdp.scissor_o.lr_y * rdp.scale_y + rdp.offset_y + 0.01f),settings.res_y),0);
+        rdp.scissor.ul_x = (DWORD) std::max(std::min((rdp.scissor_o.ul_x * rdp.scale_x + rdp.offset_x + 0.01f),static_cast<float>(settings.res_x)),0.0f);
+        rdp.scissor.lr_x = (DWORD) std::max(std::min((rdp.scissor_o.lr_x * rdp.scale_x + rdp.offset_x + 0.01f),static_cast<float>(settings.res_x)),0.0f);
+        rdp.scissor.ul_y = (DWORD) std::max(std::min((rdp.scissor_o.ul_y * rdp.scale_y + rdp.offset_y + 0.01f),static_cast<float>(settings.res_y)),0.0f);
+        rdp.scissor.lr_y = (DWORD) std::max(std::min((rdp.scissor_o.lr_y * rdp.scale_y + rdp.offset_y + 0.01f),static_cast<float>(settings.res_y)),0.0f);
         FRDP (" |- scissor - (%d, %d) -> (%d, %d)\n", rdp.scissor.ul_x, rdp.scissor.ul_y,
             rdp.scissor.lr_x, rdp.scissor.lr_y);
     }
@@ -1660,10 +1659,10 @@ void update ()
       float scale_y = (float)fabs(rdp.view_scale[1]);
       //printf("scale_y %g\n", scale_y);
       
-      DWORD min_x = (DWORD) max(rdp.view_trans[0] - scale_x, 0);
-      DWORD min_y = (DWORD) max(rdp.view_trans[1] - scale_y, 0);
-      DWORD max_x = (DWORD) min(rdp.view_trans[0] + scale_x + 1, settings.res_x);
-      DWORD max_y = (DWORD) min(rdp.view_trans[1] + scale_y + 1, settings.res_y);
+      DWORD min_x = (DWORD) std::max(rdp.view_trans[0] - scale_x, 0.0f);
+      DWORD min_y = (DWORD) std::max(rdp.view_trans[1] - scale_y, 0.0f);
+      DWORD max_x = (DWORD) std::min(rdp.view_trans[0] + scale_x + 1, static_cast<float>(settings.res_x));
+      DWORD max_y = (DWORD) std::min(rdp.view_trans[1] + scale_y + 1, static_cast<float>(settings.res_y));
       
       FRDP (" |- viewport - (%d, %d, %d, %d)\n", min_x, min_y, max_x, max_y);
           grClipWindow (min_x, min_y, max_x, max_y);

@@ -34,10 +34,7 @@
 //
 //****************************************************************
 
-#ifndef _WIN32
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#endif // _WIN32
+#include <algorithm>
 
 static void mod_tex_inter_color_using_factor_CI (DWORD color, DWORD factor)
 {
@@ -58,9 +55,9 @@ static void mod_tex_inter_color_using_factor_CI (DWORD color, DWORD factor)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = (BYTE)(min(255, percent_i * r + percent * cr));
-        g = (BYTE)(min(255, percent_i * g + percent * cg));
-        b = (BYTE)(min(255, percent_i * b + percent * cb));
+        r = (BYTE)(std::min(255.0f, percent_i * r + percent * cr));
+        g = (BYTE)(std::min(255.0f, percent_i * g + percent * cg));
+        b = (BYTE)(std::min(255.0f, percent_i * b + percent * cb));
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -92,9 +89,9 @@ static void mod_tex_inter_col_using_col1_CI (DWORD color0, DWORD color1)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = (BYTE)(min(255, percent_r_i * r + percent_r * cr));
-        g = (BYTE)(min(255, percent_g_i * g + percent_g * cg));
-        b = (BYTE)(min(255, percent_b_i * b + percent_b * cb));
+        r = (BYTE)(std::min(255.0f, percent_r_i * r + percent_r * cr));
+        g = (BYTE)(std::min(255.0f, percent_g_i * g + percent_g * cg));
+        b = (BYTE)(std::min(255.0f, percent_b_i * b + percent_b * cb));
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -120,10 +117,10 @@ static void mod_full_color_sub_tex_CI (DWORD color)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        a = max(0, ca - a);
-        r = max(0, cr - r);
-        g = max(0, cg - g);
-        b = max(0, cb - b);
+        a = std::max(0, ca - a);
+        r = std::max(0, cr - r);
+        g = std::max(0, cg - g);
+        b = std::max(0, cb - b);
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -152,9 +149,9 @@ static void mod_col_inter_col1_using_tex_CI (DWORD color0, DWORD color1)
         percent_r = ((col&0xF800) >> 11) / 31.0f;
         percent_g = ((col&0x07C0) >> 6) / 31.0f;
         percent_b = ((col&0x003E) >> 1) / 31.0f;
-        r = (BYTE)(min((1.0f-percent_r) * cr0 + percent_r * cr1, 255));
-        g = (BYTE)(min((1.0f-percent_g) * cg0 + percent_g * cg1, 255));
-        b = (BYTE)(min((1.0f-percent_b) * cb0 + percent_b * cb1, 255));
+        r = (BYTE)(std::min((1.0f-percent_r) * cr0 + percent_r * cr1, 255.0f));
+        g = (BYTE)(std::min((1.0f-percent_g) * cg0 + percent_g * cg1, 255.0f));
+        b = (BYTE)(std::min((1.0f-percent_b) * cb0 + percent_b * cb1, 255.0f));
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -215,9 +212,9 @@ static void mod_tex_scale_col_add_col_CI (DWORD color, DWORD factor)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = (BYTE)(min(base + percent_r * r, 255));
-        g = (BYTE)(min(base + percent_g * g, 255));
-        b = (BYTE)(min(base + percent_b * b, 255));
+        r = (BYTE)(std::min(base + percent_r * r, 255.0f));
+        g = (BYTE)(std::min(base + percent_g * g, 255.0f));
+        b = (BYTE)(std::min(base + percent_b * b, 255.0f));
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -243,9 +240,9 @@ static void mod_tex_add_col_CI (DWORD color)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = min(cr + r, 255);
-        g = min(cg + g, 255);
-        b = min(cb + b, 255);
+        r = std::min(cr + r, 255);
+        g = std::min(cg + g, 255);
+        b = std::min(cb + b, 255);
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -270,9 +267,9 @@ static void mod_tex_sub_col_CI (DWORD color)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = max(r - cr, 0);
-        g = max(g - cg, 0);
-        b = max(b - cb, 0);
+        r = std::max(r - cr, 0);
+        g = std::max(g - cg, 0);
+        b = std::max(b - cb, 0);
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |
@@ -340,9 +337,9 @@ static void mod_col_inter_tex_using_col1_CI (DWORD color0, DWORD color1)
         r = (BYTE)((float)((col&0xF800) >> 11) / 31.0f * 255.0f);
         g = (BYTE)((float)((col&0x07C0) >> 6) / 31.0f * 255.0f);
         b = (BYTE)((float)((col&0x003E) >> 1) / 31.0f * 255.0f);
-        r = (BYTE)(min(255, percent_r * r + percent_r_i * cr));
-        g = (BYTE)(min(255, percent_g * g + percent_g_i * cg));
-        b = (BYTE)(min(255, percent_b * b + percent_b_i * cb));
+        r = (BYTE)(std::min(255.0f, percent_r * r + percent_r_i * cr));
+        g = (BYTE)(std::min(255.0f, percent_g * g + percent_g_i * cg));
+        b = (BYTE)(std::min(255.0f, percent_b * b + percent_b_i * cb));
         rdp.pal_8[i] = (WORD)(((WORD)(r >> 3) << 11) |
                   ((WORD)(g >> 3) << 6) |
                   ((WORD)(b >> 3) << 1) |

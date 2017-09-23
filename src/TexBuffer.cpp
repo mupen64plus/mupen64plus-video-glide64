@@ -43,14 +43,11 @@
 #include "rdp.h"
 #include "TexBuffer.h"
 #include "Gfx1.3.h"
-
+#include <algorithm>
 
 #ifndef _WIN32
 #include <string.h>
 #endif // _WIN32
-
-#define max(a,b) ((a) > (b) ? (a) : (b))
-#define min(a,b) ((a) < (b) ? (a) : (b))
 
 static HIRES_COLOR_IMAGE * AllocateTextureBuffer(COLOR_IMAGE & cimage)
 {
@@ -60,13 +57,13 @@ static HIRES_COLOR_IMAGE * AllocateTextureBuffer(COLOR_IMAGE & cimage)
   texbuf.width = cimage.width;
   texbuf.height = cimage.height;
   texbuf.format = (WORD)cimage.format;
-    texbuf.scr_width = min(cimage.width * rdp.scale_x, settings.scr_res_x);
-    float height = min(rdp.vi_height,cimage.height);
+    texbuf.scr_width = std::min(cimage.width * rdp.scale_x, static_cast<float>(settings.scr_res_x));
+    float height = std::min(rdp.vi_height,static_cast<float>(cimage.height));
     if (cimage.status == ci_copy_self || (cimage.status == ci_copy && cimage.width == rdp.frame_buffers[rdp.main_ci_index].width)) 
         height = rdp.vi_height;
     texbuf.scr_height = height * rdp.scale_y;
 
-  WORD max_size = max((WORD)texbuf.scr_width, (WORD)texbuf.scr_height);
+  WORD max_size = std::max((WORD)texbuf.scr_width, (WORD)texbuf.scr_height);
   if (max_size > max_tex_size) //texture size is too large 
     return 0;
   DWORD tex_size;
