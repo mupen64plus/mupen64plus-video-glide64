@@ -37,16 +37,16 @@
 #include "rdp.h"
 #include "m64p.h"
 
-__inline float DotProduct(register float *v1, register float *v2)
+__inline float DotProduct(float *v1, float *v2)
 {
-    register float result;
+    float result;
     result = v1[0]*v2[0] + v1[1]*v2[1] + v1[2]*v2[2];
     return(result);
 }
 
 __inline void NormalizeVector(float *v)
 {
-    register float len;
+    float len;
     len = sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
     if (len > 0.0f)
     {
