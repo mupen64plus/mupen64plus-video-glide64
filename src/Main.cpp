@@ -710,7 +710,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
       WriteLog(M64MSG_INFO, "fb_hires\n");
     GRWINOPENEXT grSstWinOpenExt = (GRWINOPENEXT)grGetProcAddress("grSstWinOpenExt");
     if (grSstWinOpenExt)
-      gfx_context = grSstWinOpenExt ((FxU32)NULL,
+      gfx_context = grSstWinOpenExt ((uintptr_t)NULL,
       settings.res_data,
       GR_REFRESH_60Hz,
       GR_COLORFORMAT_RGBA,
@@ -720,7 +720,7 @@ BOOL InitGfx (BOOL evoodoo_using_window)
       1);   // 1 auxillary buffer
   }
   if (!gfx_context)
-    gfx_context = grSstWinOpen ((FxU32)NULL,
+    gfx_context = grSstWinOpen ((uintptr_t)NULL,
     settings.res_data,
     GR_REFRESH_60Hz,
     GR_COLORFORMAT_RGBA,
