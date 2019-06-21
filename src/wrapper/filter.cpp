@@ -32,8 +32,8 @@
 unsigned char *blur_edges(unsigned char *source, int width, int height, int *width2, int *height2)
 {
     unsigned char *result, *temp, *temp2;
-    char mx[3*3] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-    char my[3*3] = {-1, -2, -1, 0, 0, 0, 1, 2 ,1};
+    signed char mx[3*3] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    signed char my[3*3] = {-1, -2, -1, 0, 0, 0, 1, 2 ,1};
     int i,j;
 
     *width2 = width*2;
