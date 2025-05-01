@@ -19,26 +19,20 @@ jobs:
             arch: x64
           - cc: Clang
             arch: x86
-    name: Linux / ${{ matrix.cc }} / ${{ matrix.arch }}
-    runs-on: ubuntu-22.04
+    name: Linux / ${{ matrix.cc }} ${{ matrix.arch }}
+    runs-on: ubuntu-24.04
     if: github.repository == 'mupen64plus/mupen64plus-video-glide64'
     steps:
       - uses: actions/checkout@v4
       - name: Get build dependencies and arrange the environment
         run: |
           git clone --depth 1 https://github.com/mupen64plus/mupen64plus-core.git ../mupen64plus-core
-          export C_CLANG_SUFFIX="-15" C_GCC_SUFFIX="-12"
-          export BUILD_DEPS="libgl1-mesa-dev libsdl1.2-dev libsdl2-dev"
+          export BUILD_DEPS="libgl1-mesa-dev libsdl2-dev"
           ./../mupen64plus-core/.github/workflows/scripts/ci_install_ubuntu_deps.sh ${{ matrix.arch }} ${{ matrix.cc }}
       - name: Build and related stuff, backup binaries
         run: |
-          export C_CLANG_SUFFIX="-15" C_GCC_SUFFIX="-12"
-          export PATH="$(pwd)/../mupen64plus-core/.github/workflows/scripts:${PATH}"
           export OPTFLAGS="-O2 -flto -msse2"
-          export CONFIG_OVERRIDE="SDL_CONFIG="sdl-config""
-          ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }}
-          export CONFIG_OVERRIDE="SDL_CONFIG="sdl2-config""
-          ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }} makepkg
+          ./../mupen64plus-core/.github/workflows/scripts/ci_build.sh ${{ matrix.arch }} ${{ matrix.cc }} makepkg
       - name: Upload artifact
         if: matrix.cc == 'GCC'
         uses: actions/upload-artifact@v4
@@ -59,8 +53,16 @@ jobs:
             arch: x86
             cross: i686
             env: MINGW32
-    name: Windows / MSYS2 ${{ matrix.cc }} / ${{ matrix.arch }}
-    runs-on: windows-2022
+          - cc: GCC
+            arch: x64
+            cross: ucrt-x86_64
+            env: UCRT64
+          - cc: Clang
+            arch: x64
+            cross: clang-x86_64
+            env: CLANG64
+    name: Windows ${{ matrix.arch }} / MSYS2 ${{ matrix.env }} ${{ matrix.cc }}
+    runs-on: windows-2025
     if: github.repository == 'mupen64plus/mupen64plus-video-glide64'
     defaults:
       run:
@@ -75,7 +77,6 @@ jobs:
             git
             libtool
             make
-            mingw-w64-${{ matrix.cross }}-gcc
             mingw-w64-${{ matrix.cross }}-toolchain
             mingw-w64-${{ matrix.cross }}-ntldd
             mingw-w64-${{ matrix.cross }}-SDL
